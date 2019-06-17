@@ -7,6 +7,8 @@
 #![no_std]
 
 extern crate embedded_hal as hal;
+extern crate rtcc;
+pub use rtcc::{DateTime, Hours, Rtcc};
 
 /// All possible errors in this crate
 #[derive(Debug)]
@@ -29,15 +31,20 @@ const DEVICE_ADDRESS: u8 = 0b1101111;
 struct Register;
 impl Register {
     const SECONDS: u8 = 0x00;
+    const MINUTES: u8 = 0x01;
+    const HOURS: u8 = 0x02;
 }
 
 struct BitFlags;
 impl BitFlags {
     const ST: u8 = 0b1000_0000;
+    const H24_H12: u8 = 0b0100_0000;
+    const AM_PM: u8 = 0b0010_0000;
 }
 
 pub mod interface;
 use interface::I2cInterface;
+mod common;
 
 impl<I2C, E> Mcp794xx<I2cInterface<I2C>>
 where
@@ -78,6 +85,13 @@ where
         Ok(())
     }
 
+    fn check_lt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {
+        if !(value < reference) {
+            Err(Error::InvalidInputData)
+        } else {
+            Ok(())
+        }
+    }
 }
 
 mod private {
