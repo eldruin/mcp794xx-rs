@@ -86,10 +86,10 @@ where
     }
 
     fn check_lt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {
-        if !(value < reference) {
-            Err(Error::InvalidInputData)
-        } else {
+        if value < reference {
             Ok(())
+        } else {
+            Err(Error::InvalidInputData)
         }
     }
 }
