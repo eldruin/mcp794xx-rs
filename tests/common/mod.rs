@@ -16,6 +16,7 @@ impl Register {
     pub const WEEKDAY: u8 = 0x03;
     pub const DAY: u8 = 0x04;
     pub const MONTH: u8 = 0x05;
+    pub const YEAR: u8 = 0x06;
 }
 
 pub struct BitFlags;

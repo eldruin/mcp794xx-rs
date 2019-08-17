@@ -79,3 +79,10 @@ mod month {
     set_param_test!(set, set_month, MONTH, 9, [0b0000_1001]);
     set_invalid_param_range_test!(invalid, set_month, 0, 13);
 }
+
+mod year {
+    use super::*;
+    get_param_test!(get, get_year, YEAR, 2045, [0b0100_0101]);
+    set_param_test!(set, set_year, YEAR, 2098, [0b1001_1000]);
+    set_invalid_param_test!(invalid, set_year, 2100);
+}

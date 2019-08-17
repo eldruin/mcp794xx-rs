@@ -42,8 +42,12 @@ where
         Ok(packed_bcd_to_decimal(value & !BitFlags::LEAPYEAR))
     }
 
+    /// This device can compensate for leap years up to 2399
+    /// but only the two last year digits are stored so we will return
+    /// the year as in the range 2000-2099.
     fn get_year(&mut self) -> Result<u16, Self::Error> {
-        Err(Error::InvalidInputData)
+        let value = self.iface.read_register(Register::YEAR)?;
+        Ok(2000 + u16::from(packed_bcd_to_decimal(value)))
     }
 
     fn set_seconds(&mut self, seconds: u8) -> Result<(), Self::Error> {
@@ -95,8 +99,13 @@ where
         self.iface.write_register(Register::MONTH, data)
     }
 
+    /// This device can compensate for leap years up to 2399
+    /// but only the two last year digits are stored so we only
+    /// support the range 2000-2099.
     fn set_year(&mut self, year: u16) -> Result<(), Self::Error> {
-        Err(Error::InvalidInputData)
+        Self::check_lt(year, 2100)?;
+        let value = decimal_to_packed_bcd((year - 2000) as u8);
+        self.iface.write_register(Register::YEAR, value)
     }
 
     fn get_datetime(&mut self) -> Result<DateTime, Self::Error> {
