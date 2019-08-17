@@ -72,3 +72,10 @@ mod day {
     set_param_test!(set, set_day, DAY, 31, [0b0011_0001]);
     set_invalid_param_range_test!(invalid, set_day, 0, 32);
 }
+
+mod month {
+    use super::*;
+    get_param_test!(get, get_month, MONTH, 12, [0b0001_0010]);
+    set_param_test!(set, set_month, MONTH, 9, [0b0000_1001]);
+    set_invalid_param_range_test!(invalid, set_month, 0, 13);
+}

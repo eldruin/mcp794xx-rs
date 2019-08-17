@@ -36,6 +36,7 @@ impl Register {
     const HOURS: u8 = 0x02;
     const WEEKDAY: u8 = 0x03;
     const DAY: u8 = 0x04;
+    const MONTH: u8 = 0x05;
 }
 
 struct BitFlags;
@@ -44,6 +45,7 @@ impl BitFlags {
     const H24_H12: u8 = 0b0100_0000;
     const AM_PM: u8 = 0b0010_0000;
     const VBATEN: u8 = 0b0000_1000;
+    const LEAPYEAR: u8 = 0b0010_0000;
 }
 
 pub mod interface;

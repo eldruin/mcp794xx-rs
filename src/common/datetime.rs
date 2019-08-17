@@ -38,7 +38,8 @@ where
     }
 
     fn get_month(&mut self) -> Result<u8, Self::Error> {
-        Err(Error::InvalidInputData)
+        let value = self.iface.read_register(Register::MONTH)?;
+        Ok(packed_bcd_to_decimal(value & !BitFlags::LEAPYEAR))
     }
 
     fn get_year(&mut self) -> Result<u16, Self::Error> {
@@ -88,7 +89,10 @@ where
     }
 
     fn set_month(&mut self, month: u8) -> Result<(), Self::Error> {
-        Err(Error::InvalidInputData)
+        Self::check_lt(month, 13)?;
+        Self::check_gt(month, 0)?;
+        let data = decimal_to_packed_bcd(month);
+        self.iface.write_register(Register::MONTH, data)
     }
 
     fn set_year(&mut self, year: u16) -> Result<(), Self::Error> {
