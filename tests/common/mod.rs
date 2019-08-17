@@ -106,14 +106,14 @@ macro_rules! get_param_test {
 
 #[macro_export]
 macro_rules! set_param_test {
-    ($name:ident, $method:ident, $register:ident, $value:expr, [$binary_value:expr]) => {
+    ($name:ident, $method:ident, $register:ident, $value:expr, [$( $binary_value:expr ),+]) => {
         for_all_ics!(
             $name,
             call_test,
             $method,
             [I2cTrans::write(
                 DEV_ADDR,
-                vec![Register::$register, $binary_value]
+                vec![Register::$register, $($binary_value),*]
             )],
             $value
         );

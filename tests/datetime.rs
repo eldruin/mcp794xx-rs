@@ -3,7 +3,7 @@ use hal::i2c::Transaction as I2cTrans;
 mod common;
 use common::{destroy_mcp7940n, new_mcp7940n, Register, DEVICE_ADDRESS as DEV_ADDR};
 extern crate mcp794xx;
-use mcp794xx::{Error, Hours, Rtcc};
+use mcp794xx::{DateTime, Error, Hours, Rtcc};
 
 macro_rules! set_invalid_param_test {
     ($name:ident, $method:ident, $value:expr) => {
@@ -85,4 +85,79 @@ mod year {
     get_param_test!(get, get_year, YEAR, 2045, [0b0100_0101]);
     set_param_test!(set, set_year, YEAR, 2098, [0b1001_1000]);
     set_invalid_param_test!(invalid, set_year, 2100);
+}
+
+macro_rules! invalid_dt_test {
+    ($name:ident, $year:expr, $month:expr, $day:expr, $weekday:expr,
+     $hour:expr, $minute:expr, $second:expr) => {
+        mod $name {
+            use super::*;
+            const DT: DateTime = DateTime {
+                year: $year,
+                month: $month,
+                day: $day,
+                weekday: $weekday,
+                hour: $hour,
+                minute: $minute,
+                second: $second,
+            };
+            set_invalid_param_test!($name, set_datetime, &DT);
+        }
+    };
+}
+
+mod datetime {
+    use super::*;
+    const DT: DateTime = DateTime {
+        year: 2018,
+        month: 8,
+        day: 13,
+        weekday: 2,
+        hour: Hours::H24(23),
+        minute: 59,
+        second: 58,
+    };
+    get_param_test!(
+        get,
+        get_datetime,
+        SECONDS,
+        DT,
+        [
+            0b0101_1000,
+            0b0101_1001,
+            0b0010_0011,
+            0b0000_0010,
+            0b0001_0011,
+            0b0000_1000,
+            0b0001_1000
+        ]
+    );
+
+    set_param_test!(
+        set,
+        set_datetime,
+        SECONDS,
+        &DT,
+        [
+            0b0101_1000,
+            0b0101_1001,
+            0b0010_0011,
+            0b0000_0010,
+            0b0001_0011,
+            0b0000_1000,
+            0b0001_1000
+        ]
+    );
+
+    invalid_dt_test!(too_small_year, 1999, 8, 13, 2, Hours::H24(23), 59, 58);
+    invalid_dt_test!(too_big_year, 2100, 8, 13, 2, Hours::H24(23), 59, 58);
+    invalid_dt_test!(too_small_month, 2018, 0, 13, 2, Hours::H24(23), 59, 58);
+    invalid_dt_test!(too_big_month, 2018, 13, 13, 2, Hours::H24(23), 59, 58);
+    invalid_dt_test!(too_small_day, 2018, 8, 0, 2, Hours::H24(23), 59, 58);
+    invalid_dt_test!(too_big_day, 2018, 8, 32, 2, Hours::H24(23), 59, 58);
+    invalid_dt_test!(too_small_wd, 2018, 8, 13, 0, Hours::H24(23), 59, 58);
+    invalid_dt_test!(too_big_wd, 2018, 8, 13, 8, Hours::H24(23), 59, 58);
+    invalid_dt_test!(too_big_hours, 2018, 8, 13, 2, Hours::H24(24), 59, 58);
+    invalid_dt_test!(too_big_min, 2018, 8, 13, 2, Hours::H24(24), 60, 58);
+    invalid_dt_test!(too_big_seconds, 2018, 8, 13, 2, Hours::H24(24), 59, 60);
 }

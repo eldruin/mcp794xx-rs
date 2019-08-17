@@ -108,11 +108,63 @@ where
         self.iface.write_register(Register::YEAR, value)
     }
 
+    /// This device can compensate for leap years up to 2399
+    /// but only the two last year digits are stored so we will return
+    /// the year as in the range 2000-2099.
     fn get_datetime(&mut self) -> Result<DateTime, Self::Error> {
-        Err(Error::InvalidInputData)
+        let mut data = [0; 8];
+        self.iface.read_data(&mut data)?;
+        Ok(DateTime {
+            year: 2000 + u16::from(packed_bcd_to_decimal(data[Register::YEAR as usize + 1])),
+            month: packed_bcd_to_decimal(data[Register::MONTH as usize + 1] & !BitFlags::LEAPYEAR),
+            day: packed_bcd_to_decimal(data[Register::DAY as usize + 1]),
+            weekday: packed_bcd_to_decimal(data[Register::WEEKDAY as usize + 1] & 0b111),
+            hour: hours_from_register(data[Register::HOURS as usize + 1]),
+            minute: packed_bcd_to_decimal(data[Register::MINUTES as usize + 1]),
+            second: packed_bcd_to_decimal(data[Register::SECONDS as usize + 1] & !BitFlags::ST),
+        })
     }
 
+    /// Note that this clears the power failed flag.
+    /// This device can compensate for leap years up to 2399
+    /// but only the two last year digits are stored so we only
+    /// support the range 2000-2099.
     fn set_datetime(&mut self, datetime: &DateTime) -> Result<(), Self::Error> {
-        Err(Error::InvalidInputData)
+        if datetime.year < 2000
+            || datetime.year > 2099
+            || datetime.month < 1
+            || datetime.month > 12
+            || datetime.day < 1
+            || datetime.day > 31
+            || datetime.weekday < 1
+            || datetime.weekday > 7
+            || datetime.minute > 59
+            || datetime.second > 59
+        {
+            return Err(Error::InvalidInputData);
+        }
+        let second = decimal_to_packed_bcd(datetime.second);
+        let second = if self.is_enabled {
+            second | BitFlags::ST
+        } else {
+            second
+        };
+        let weekday = decimal_to_packed_bcd(datetime.weekday);
+        let weekday = if self.is_battery_power_enabled {
+            weekday | BitFlags::VBATEN
+        } else {
+            weekday
+        };
+        let mut payload = [
+            Register::SECONDS,
+            second,
+            decimal_to_packed_bcd(datetime.minute),
+            hours_to_register(datetime.hour)?,
+            weekday,
+            decimal_to_packed_bcd(datetime.day),
+            decimal_to_packed_bcd(datetime.month),
+            decimal_to_packed_bcd((datetime.year - 2000) as u8),
+        ];
+        self.iface.write_data(&mut payload)
     }
 }
