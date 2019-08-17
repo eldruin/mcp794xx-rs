@@ -27,7 +27,9 @@ where
     }
 
     fn get_weekday(&mut self) -> Result<u8, Self::Error> {
-        Err(Error::InvalidInputData)
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        let weekday = packed_bcd_to_decimal(data & 0b111);
+        Ok(weekday)
     }
 
     fn get_day(&mut self) -> Result<u8, Self::Error> {
@@ -64,8 +66,17 @@ where
         self.iface.write_register(Register::HOURS, value)
     }
 
+    /// Note that this clears the power failed flag.
     fn set_weekday(&mut self, weekday: u8) -> Result<(), Self::Error> {
-        Err(Error::InvalidInputData)
+        Self::check_lt(weekday, 8)?;
+        Self::check_gt(weekday, 0)?;
+        let value = decimal_to_packed_bcd(weekday);
+        let value = if self.is_battery_power_enabled {
+            value | BitFlags::VBATEN
+        } else {
+            value
+        };
+        self.iface.write_register(Register::WEEKDAY, value)
     }
 
     fn set_day(&mut self, day: u8) -> Result<(), Self::Error> {

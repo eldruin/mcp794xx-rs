@@ -58,3 +58,10 @@ mod hours_12h_pm {
     set_param_test!(set, set_hours, HOURS, Hours::PM(12), [0b0111_0010]);
     set_invalid_param_range_test!(invalid, set_hours, Hours::PM(0), Hours::PM(13));
 }
+
+mod weekday {
+    use super::*;
+    get_param_test!(get, get_weekday, WEEKDAY, 5, [5]);
+    set_param_test!(set, set_weekday, WEEKDAY, 7, [7]);
+    set_invalid_param_range_test!(invalid, set_weekday, 0, 8);
+}

@@ -24,6 +24,7 @@ pub enum Error<E> {
 pub struct Mcp794xx<DI> {
     iface: DI,
     is_enabled: bool,
+    is_battery_power_enabled: bool,
 }
 
 const DEVICE_ADDRESS: u8 = 0b1101111;
@@ -33,6 +34,7 @@ impl Register {
     const SECONDS: u8 = 0x00;
     const MINUTES: u8 = 0x01;
     const HOURS: u8 = 0x02;
+    const WEEKDAY: u8 = 0x03;
 }
 
 struct BitFlags;
@@ -40,6 +42,7 @@ impl BitFlags {
     const ST: u8 = 0b1000_0000;
     const H24_H12: u8 = 0b0100_0000;
     const AM_PM: u8 = 0b0010_0000;
+    const VBATEN: u8 = 0b0000_1000;
 }
 
 pub mod interface;
@@ -55,6 +58,7 @@ where
         Mcp794xx {
             iface: I2cInterface { i2c },
             is_enabled: false,
+            is_battery_power_enabled: false,
         }
     }
 
@@ -87,6 +91,14 @@ where
 
     fn check_lt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {
         if value < reference {
+            Ok(())
+        } else {
+            Err(Error::InvalidInputData)
+        }
+    }
+
+    fn check_gt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {
+        if value > reference {
             Ok(())
         } else {
             Err(Error::InvalidInputData)
