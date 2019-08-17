@@ -33,7 +33,8 @@ where
     }
 
     fn get_day(&mut self) -> Result<u8, Self::Error> {
-        Err(Error::InvalidInputData)
+        let day = self.iface.read_register(Register::DAY)?;
+        Ok(packed_bcd_to_decimal(day))
     }
 
     fn get_month(&mut self) -> Result<u8, Self::Error> {
@@ -80,7 +81,10 @@ where
     }
 
     fn set_day(&mut self, day: u8) -> Result<(), Self::Error> {
-        Err(Error::InvalidInputData)
+        Self::check_lt(day, 32)?;
+        Self::check_gt(day, 0)?;
+        let data = decimal_to_packed_bcd(day);
+        self.iface.write_register(Register::DAY, data)
     }
 
     fn set_month(&mut self, month: u8) -> Result<(), Self::Error> {
