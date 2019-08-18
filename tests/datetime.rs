@@ -1,7 +1,7 @@
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 mod common;
-use common::{destroy_mcp7940n, new_mcp7940n, Register, DEVICE_ADDRESS as DEV_ADDR};
+use common::{destroy_mcp7940n, new_mcp7940n, BitFlags, Register, DEVICE_ADDRESS as DEV_ADDR};
 extern crate mcp794xx;
 use mcp794xx::{DateTime, Error, Hours, Rtcc};
 
@@ -160,4 +160,10 @@ mod datetime {
     invalid_dt_test!(too_big_hours, 2018, 8, 13, 2, Hours::H24(24), 59, 58);
     invalid_dt_test!(too_big_min, 2018, 8, 13, 2, Hours::H24(24), 60, 58);
     invalid_dt_test!(too_big_seconds, 2018, 8, 13, 2, Hours::H24(24), 59, 60);
+}
+
+mod leapyear {
+    use super::*;
+    get_param_test!(yes, is_leap_year, MONTH, true, [BitFlags::LEAPYEAR]);
+    get_param_test!(no, is_leap_year, MONTH, false, [!BitFlags::LEAPYEAR]);
 }

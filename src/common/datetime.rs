@@ -168,3 +168,14 @@ where
         self.iface.write_data(&mut payload)
     }
 }
+
+impl<DI, E> Mcp794xx<DI>
+where
+    DI: interface::ReadData<Error = Error<E>>,
+{
+    /// Returns whether the current year is a leap year.
+    pub fn is_leap_year(&mut self) -> Result<bool, Error<E>> {
+        let data = self.iface.read_register(Register::MONTH)?;
+        Ok((data & BitFlags::LEAPYEAR) != 0)
+    }
+}
