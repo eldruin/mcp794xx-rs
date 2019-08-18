@@ -34,3 +34,18 @@ get_param_test!(
     false,
     [!BitFlags::OSCRUN]
 );
+
+get_param_test!(
+    power_failed,
+    has_power_failed,
+    WEEKDAY,
+    true,
+    [BitFlags::PWRFAIL]
+);
+get_param_test!(
+    power_not_failed,
+    has_power_failed,
+    WEEKDAY,
+    false,
+    [!BitFlags::PWRFAIL]
+);

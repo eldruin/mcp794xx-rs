@@ -46,6 +46,7 @@ impl BitFlags {
     const H24_H12: u8 = 0b0100_0000;
     const AM_PM: u8 = 0b0010_0000;
     const VBATEN: u8 = 0b0000_1000;
+    const PWRFAIL: u8 = 0b0001_0000;
     const OSCRUN: u8 = 0b0010_0000;
     const LEAPYEAR: u8 = 0b0010_0000;
 }
@@ -98,6 +99,12 @@ where
     pub fn is_oscillator_running(&mut self) -> Result<bool, Error<E>> {
         let data = self.iface.read_register(Register::WEEKDAY)?;
         Ok((data & BitFlags::OSCRUN) != 0)
+    }
+
+    /// Returns whether the primary power has failed.
+    pub fn has_power_failed(&mut self) -> Result<bool, Error<E>> {
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        Ok((data & BitFlags::PWRFAIL) != 0)
     }
 
     fn check_lt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {
