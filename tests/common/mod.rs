@@ -24,6 +24,7 @@ pub struct BitFlags;
 #[allow(unused)]
 impl BitFlags {
     pub const ST: u8 = 0b1000_0000;
+    pub const OSCRUN: u8 = 0b0010_0000;
 }
 
 pub fn new_mcp7940n(transactions: &[I2cTrans]) -> Mcp794xx<interface::I2cInterface<I2cMock>> {

@@ -46,6 +46,7 @@ impl BitFlags {
     const H24_H12: u8 = 0b0100_0000;
     const AM_PM: u8 = 0b0010_0000;
     const VBATEN: u8 = 0b0000_1000;
+    const OSCRUN: u8 = 0b0010_0000;
     const LEAPYEAR: u8 = 0b0010_0000;
 }
 
@@ -91,6 +92,12 @@ where
             .write_register(Register::SECONDS, seconds & !BitFlags::ST)?;
         self.is_enabled = false;
         Ok(())
+    }
+
+    /// Returns whether the oscillator is running.
+    pub fn is_oscillator_running(&mut self) -> Result<bool, Error<E>> {
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        Ok((data & BitFlags::OSCRUN) != 0)
     }
 
     fn check_lt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {

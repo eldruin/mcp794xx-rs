@@ -19,3 +19,18 @@ macro_rules! call_update_method {
 
 call_update_method!(can_enable, enable, SECONDS, BitFlags::ST);
 call_update_method!(can_disable, disable, SECONDS, 0);
+
+get_param_test!(
+    osc_running,
+    is_oscillator_running,
+    WEEKDAY,
+    true,
+    [BitFlags::OSCRUN]
+);
+get_param_test!(
+    osc_not_running,
+    is_oscillator_running,
+    WEEKDAY,
+    false,
+    [!BitFlags::OSCRUN]
+);
