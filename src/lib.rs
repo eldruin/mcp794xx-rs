@@ -114,6 +114,28 @@ where
         self.iface.write_register(Register::WEEKDAY, data)
     }
 
+    /// Enable usage of backup battery power.
+    ///
+    /// Note that this clears the power failed flag.
+    pub fn enable_backup_battery_power(&mut self) -> Result<(), Error<E>> {
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        let data = data | BitFlags::VBATEN;
+        self.iface.write_register(Register::WEEKDAY, data)?;
+        self.is_battery_power_enabled = true;
+        Ok(())
+    }
+
+    /// Disable usage of backup battery power (default).
+    ///
+    /// Note that this clears the power failed flag.
+    pub fn disable_backup_battery_power(&mut self) -> Result<(), Error<E>> {
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        let data = data & !BitFlags::VBATEN;
+        self.iface.write_register(Register::WEEKDAY, data)?;
+        self.is_battery_power_enabled = false;
+        Ok(())
+    }
+
     fn check_lt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {
         if value < reference {
             Ok(())

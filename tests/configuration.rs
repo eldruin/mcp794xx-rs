@@ -19,12 +19,16 @@ macro_rules! call_update_method {
 
 call_update_method!(can_enable, enable, SECONDS, BitFlags::ST);
 call_update_method!(can_disable, disable, SECONDS, 0);
+call_update_method!(can_clear_pwr_fail, clear_power_failed, WEEKDAY, 0);
+
 call_update_method!(
-    can_clear_pwr_fail,
-    clear_power_failed,
+    can_enable_vbat,
+    enable_backup_battery_power,
     WEEKDAY,
-    0
+    BitFlags::VBATEN
 );
+
+call_update_method!(can_disable_vbat, disable_backup_battery_power, WEEKDAY, 0);
 
 get_param_test!(
     osc_running,
