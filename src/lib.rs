@@ -19,6 +19,19 @@ pub enum Error<E> {
     InvalidInputData,
 }
 
+/// Square-wave output frequency
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum SqWFreq {
+    /// 1 Hz (default)
+    Hz1,
+    /// 4.096 Hz
+    Hz4_096,
+    /// 8.192 Hz
+    Hz8_192,
+    /// 32.768 Hz
+    Hz32_768,
+}
+
 /// MCP794xx RTCC driver
 #[derive(Debug)]
 pub struct Mcp794xx<DI> {
@@ -156,6 +169,23 @@ where
     /// Disable usage of external oscillator source (Will use internal source).
     pub fn disable_external_oscillator(&mut self) -> Result<(), Error<E>> {
         self.write_control(self.control.with_low(BitFlags::EXTOSC))
+    }
+
+    /// Set square-wave output frequency.
+    ///
+    /// Note that this setting will be ignored if the square-wave output is not
+    /// enabled or digital trimming is enabled.
+    pub fn set_square_wave_frequency(&mut self, frequency: SqWFreq) -> Result<(), Error<E>> {
+        let bits = match frequency {
+            SqWFreq::Hz1 => 0,
+            SqWFreq::Hz4_096 => 1,
+            SqWFreq::Hz8_192 => 2,
+            SqWFreq::Hz32_768 => 3,
+        };
+        let control = Config {
+            bits: (self.control.bits & 0b1111_1100) | bits,
+        };
+        self.write_control(control)
     }
 
     fn write_control(&mut self, control: Config) -> Result<(), Error<E>> {

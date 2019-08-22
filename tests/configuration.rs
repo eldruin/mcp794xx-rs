@@ -1,5 +1,7 @@
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
+extern crate mcp794xx;
+use mcp794xx::SqWFreq;
 mod common;
 use common::{destroy_mcp7940n, new_mcp7940n, BitFlags, Register, DEVICE_ADDRESS as DEV_ADDR};
 
@@ -81,3 +83,31 @@ set_control_test!(
     BitFlags::OUT | BitFlags::EXTOSC
 );
 set_control_test!(dis_extosc, disable_external_oscillator, BitFlags::OUT);
+set_param_test!(
+    set_sqw_1hz,
+    set_square_wave_frequency,
+    CONTROL,
+    SqWFreq::Hz1,
+    [BitFlags::OUT]
+);
+set_param_test!(
+    set_sqw_4hz,
+    set_square_wave_frequency,
+    CONTROL,
+    SqWFreq::Hz4_096,
+    [BitFlags::OUT | 1]
+);
+set_param_test!(
+    set_sqw_8hz,
+    set_square_wave_frequency,
+    CONTROL,
+    SqWFreq::Hz8_192,
+    [BitFlags::OUT | 2]
+);
+set_param_test!(
+    set_sqw_32hz,
+    set_square_wave_frequency,
+    CONTROL,
+    SqWFreq::Hz32_768,
+    [BitFlags::OUT | 3]
+);
