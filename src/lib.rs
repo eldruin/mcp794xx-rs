@@ -25,6 +25,12 @@ pub struct Mcp794xx<DI> {
     iface: DI,
     is_enabled: bool,
     is_battery_power_enabled: bool,
+    control: Config,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct Config {
+    bits: u8,
 }
 
 const DEVICE_ADDRESS: u8 = 0b1101111;
@@ -38,6 +44,7 @@ impl Register {
     const DAY: u8 = 0x04;
     const MONTH: u8 = 0x05;
     const YEAR: u8 = 0x06;
+    const CONTROL: u8 = 0x07;
 }
 
 struct BitFlags;
@@ -49,6 +56,8 @@ impl BitFlags {
     const PWRFAIL: u8 = 0b0001_0000;
     const OSCRUN: u8 = 0b0010_0000;
     const LEAPYEAR: u8 = 0b0010_0000;
+    const OUT: u8 = 0b1000_0000;
+    const EXTOSC: u8 = 0b0000_1000;
 }
 
 pub mod interface;
@@ -65,6 +74,9 @@ where
             iface: I2cInterface { i2c },
             is_enabled: false,
             is_battery_power_enabled: false,
+            control: Config {
+                bits: BitFlags::OUT,
+            },
         }
     }
 
@@ -133,6 +145,22 @@ where
         let data = data & !BitFlags::VBATEN;
         self.iface.write_register(Register::WEEKDAY, data)?;
         self.is_battery_power_enabled = false;
+        Ok(())
+    }
+
+    /// Enable usage of external oscillator source.
+    pub fn enable_external_oscillator(&mut self) -> Result<(), Error<E>> {
+        self.write_control(self.control.with_high(BitFlags::EXTOSC))
+    }
+
+    /// Disable usage of external oscillator source (Will use internal source).
+    pub fn disable_external_oscillator(&mut self) -> Result<(), Error<E>> {
+        self.write_control(self.control.with_low(BitFlags::EXTOSC))
+    }
+
+    fn write_control(&mut self, control: Config) -> Result<(), Error<E>> {
+        self.iface.write_register(Register::CONTROL, control.bits)?;
+        self.control = control;
         Ok(())
     }
 

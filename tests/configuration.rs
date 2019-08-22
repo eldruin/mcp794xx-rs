@@ -59,3 +59,25 @@ get_param_test!(
     false,
     [!BitFlags::PWRFAIL]
 );
+
+#[macro_export]
+macro_rules! set_control_test {
+    ($name:ident, $method:ident, $binary_value:expr) => {
+        for_all_ics!(
+            $name,
+            call_test,
+            $method,
+            [I2cTrans::write(
+                DEV_ADDR,
+                vec![Register::CONTROL, $binary_value]
+            )]
+        );
+    };
+}
+
+set_control_test!(
+    en_extosc,
+    enable_external_oscillator,
+    BitFlags::OUT | BitFlags::EXTOSC
+);
+set_control_test!(dis_extosc, disable_external_oscillator, BitFlags::OUT);

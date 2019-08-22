@@ -17,6 +17,7 @@ impl Register {
     pub const DAY: u8 = 0x04;
     pub const MONTH: u8 = 0x05;
     pub const YEAR: u8 = 0x06;
+    pub const CONTROL: u8 = 0x07;
 }
 
 pub struct BitFlags;
@@ -28,6 +29,8 @@ impl BitFlags {
     pub const PWRFAIL: u8 = 0b0001_0000;
     pub const LEAPYEAR: u8 = 0b0010_0000;
     pub const VBATEN: u8 = 0b0000_1000;
+    pub const OUT: u8 = 0b1000_0000;
+    pub const EXTOSC: u8 = 0b0000_1000;
 }
 
 pub fn new_mcp7940n(transactions: &[I2cTrans]) -> Mcp794xx<interface::I2cInterface<I2cMock>> {
