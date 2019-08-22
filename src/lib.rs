@@ -20,7 +20,7 @@ pub enum Error<E> {
 }
 
 /// MCP794xx RTCC driver
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Mcp794xx<DI> {
     iface: DI,
     is_enabled: bool,
