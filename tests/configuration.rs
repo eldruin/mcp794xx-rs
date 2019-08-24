@@ -1,7 +1,7 @@
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate mcp794xx;
-use mcp794xx::SqWFreq;
+use mcp794xx::{OutputPinLevel, SqWFreq};
 mod common;
 use common::{destroy_mcp7940n, new_mcp7940n, BitFlags, Register, DEVICE_ADDRESS as DEV_ADDR};
 
@@ -113,3 +113,19 @@ set_param_test!(
 );
 set_control_test!(en_sqw, enable_square_wave, BitFlags::OUT | BitFlags::SQWEN);
 set_control_test!(dis_sqw, disable_square_wave, BitFlags::OUT);
+
+set_param_test!(
+    set_out_high,
+    set_output_pin,
+    CONTROL,
+    OutputPinLevel::High,
+    [BitFlags::OUT]
+);
+
+set_param_test!(
+    set_out_low,
+    set_output_pin,
+    CONTROL,
+    OutputPinLevel::Low,
+    [0]
+);

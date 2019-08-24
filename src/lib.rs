@@ -32,6 +32,15 @@ pub enum SqWFreq {
     Hz32_768,
 }
 
+/// General purpose output pin logic level
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum OutputPinLevel {
+    /// High
+    High,
+    /// Low
+    Low,
+}
+
 /// MCP794xx RTCC driver
 #[derive(Debug)]
 pub struct Mcp794xx<DI> {
@@ -197,6 +206,18 @@ where
         };
         let control = Config {
             bits: (self.control.bits & 0b1111_1100) | bits,
+        };
+        self.write_control(control)
+    }
+
+    /// Set output pin logic level.
+    ///
+    /// Note that this setting will be ignored if the square-wave output or any
+    /// of the alarm interrupt outputs are enabled.
+    pub fn set_output_pin(&mut self, level: OutputPinLevel) -> Result<(), Error<E>> {
+        let control = match level {
+            OutputPinLevel::High => self.control.with_high(BitFlags::OUT),
+            OutputPinLevel::Low => self.control.with_low(BitFlags::OUT),
         };
         self.write_control(control)
     }
