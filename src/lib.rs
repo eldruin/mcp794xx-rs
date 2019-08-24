@@ -70,6 +70,7 @@ impl BitFlags {
     const OSCRUN: u8 = 0b0010_0000;
     const LEAPYEAR: u8 = 0b0010_0000;
     const OUT: u8 = 0b1000_0000;
+    const SQWEN: u8 = 0b0100_0000;
     const EXTOSC: u8 = 0b0000_1000;
 }
 
@@ -169,6 +170,18 @@ where
     /// Disable usage of external oscillator source (Will use internal source).
     pub fn disable_external_oscillator(&mut self) -> Result<(), Error<E>> {
         self.write_control(self.control.with_low(BitFlags::EXTOSC))
+    }
+
+    /// Enable square-wave output.
+    ///
+    /// Note that this is not available when running on backup battery power.
+    pub fn enable_square_wave(&mut self) -> Result<(), Error<E>> {
+        self.write_control(self.control.with_high(BitFlags::SQWEN))
+    }
+
+    /// Disable square-wave output.
+    pub fn disable_square_wave(&mut self) -> Result<(), Error<E>> {
+        self.write_control(self.control.with_low(BitFlags::SQWEN))
     }
 
     /// Set square-wave output frequency.

@@ -111,3 +111,5 @@ set_param_test!(
     SqWFreq::Hz32_768,
     [BitFlags::OUT | 3]
 );
+set_control_test!(en_sqw, enable_square_wave, BitFlags::OUT | BitFlags::SQWEN);
+set_control_test!(dis_sqw, disable_square_wave, BitFlags::OUT);

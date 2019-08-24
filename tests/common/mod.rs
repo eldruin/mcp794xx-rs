@@ -30,6 +30,7 @@ impl BitFlags {
     pub const LEAPYEAR: u8 = 0b0010_0000;
     pub const VBATEN: u8 = 0b0000_1000;
     pub const OUT: u8 = 0b1000_0000;
+    pub const SQWEN: u8 = 0b0100_0000;
     pub const EXTOSC: u8 = 0b0000_1000;
 }
 
