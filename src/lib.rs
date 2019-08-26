@@ -82,6 +82,7 @@ impl BitFlags {
     const OUT: u8 = 0b1000_0000;
     const SQWEN: u8 = 0b0100_0000;
     const EXTOSC: u8 = 0b0000_1000;
+    const CRSTRIM: u8 = 0b0000_0100;
 }
 
 pub mod interface;
@@ -231,6 +232,25 @@ where
     /// Disable coarse trim mode.
     pub fn disable_coarse_trim(&mut self) -> Result<(), Error<E>> {
         self.write_control(self.control.with_low(BitFlags::CRSTRIM))
+    }
+
+    /// Set digital trimming value.
+    ///
+    /// The sign determines whether the value will be added or substracted
+    /// to or from the 32.768kHz clock signal.
+    /// The argument value is always multiplied by two, so a value of 127
+    /// will add 254 clock cycles and a value of -50 will substract 100 cycles.
+    /// Depending on the digital trimming setting, this will be applied
+    /// either once per minute or 128 times per second.
+    /// Set to 0 or -128 to disable digital trimming.
+    pub fn set_trimming(&mut self, value: i8) -> Result<(), Error<E>> {
+        if value < 0 && value != -128 {
+            let rest = !(value - 1) as u8;
+            self.iface
+                .write_register(Register::OSCTRIM, 0b1000_0000 | rest)
+        } else {
+            self.iface.write_register(Register::OSCTRIM, value as u8)
+        }
     }
 
     fn write_control(&mut self, control: Config) -> Result<(), Error<E>> {

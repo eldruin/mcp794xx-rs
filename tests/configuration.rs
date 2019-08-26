@@ -136,3 +136,10 @@ set_control_test!(
     BitFlags::OUT | BitFlags::CRSTRIM
 );
 set_control_test!(dis_trim, disable_coarse_trim, BitFlags::OUT);
+
+set_param_test!(set_trim_0, set_trimming, OSCTRIM, 0, [0]);
+set_param_test!(set_trim_254, set_trimming, OSCTRIM, 127, [127]);
+set_param_test!(set_trim_m128, set_trimming, OSCTRIM, -128, [0b1000_0000]);
+set_param_test!(set_trim_m252, set_trimming, OSCTRIM, -127, [0b1111_1111]);
+set_param_test!(set_trim_m4, set_trimming, OSCTRIM, -2, [0b1000_0010]);
+set_param_test!(set_trim_m2, set_trimming, OSCTRIM, -1, [0b1000_0001]);

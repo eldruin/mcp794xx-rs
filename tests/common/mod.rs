@@ -33,6 +33,7 @@ impl BitFlags {
     pub const OUT: u8 = 0b1000_0000;
     pub const SQWEN: u8 = 0b0100_0000;
     pub const EXTOSC: u8 = 0b0000_1000;
+    pub const CRSTRIM: u8 = 0b0000_0100;
 }
 
 pub fn new_mcp7940n(transactions: &[I2cTrans]) -> Mcp794xx<interface::I2cInterface<I2cMock>> {
