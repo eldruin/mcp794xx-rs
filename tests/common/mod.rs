@@ -18,6 +18,7 @@ impl Register {
     pub const MONTH: u8 = 0x05;
     pub const YEAR: u8 = 0x06;
     pub const CONTROL: u8 = 0x07;
+    pub const OSCTRIM: u8 = 0x08;
 }
 
 pub struct BitFlags;

@@ -67,6 +67,7 @@ impl Register {
     const MONTH: u8 = 0x05;
     const YEAR: u8 = 0x06;
     const CONTROL: u8 = 0x07;
+    const OSCTRIM: u8 = 0x08;
 }
 
 struct BitFlags;
@@ -220,6 +221,16 @@ where
             OutputPinLevel::Low => self.control.with_low(BitFlags::OUT),
         };
         self.write_control(control)
+    }
+
+    /// Enable coarse trim mode.
+    pub fn enable_coarse_trim(&mut self) -> Result<(), Error<E>> {
+        self.write_control(self.control.with_high(BitFlags::CRSTRIM))
+    }
+
+    /// Disable coarse trim mode.
+    pub fn disable_coarse_trim(&mut self) -> Result<(), Error<E>> {
+        self.write_control(self.control.with_low(BitFlags::CRSTRIM))
     }
 
     fn write_control(&mut self, control: Config) -> Result<(), Error<E>> {

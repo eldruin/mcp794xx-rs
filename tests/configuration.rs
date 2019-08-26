@@ -129,3 +129,10 @@ set_param_test!(
     OutputPinLevel::Low,
     [0]
 );
+
+set_control_test!(
+    en_trim,
+    enable_coarse_trim,
+    BitFlags::OUT | BitFlags::CRSTRIM
+);
+set_control_test!(dis_trim, disable_coarse_trim, BitFlags::OUT);
