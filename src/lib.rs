@@ -281,6 +281,6 @@ mod private {
     pub trait Sealed {}
 
     impl<E> Sealed for interface::I2cInterface<E> {}
-    impl<E> Sealed for interface::ReadData<Error = E> {}
-    impl<E> Sealed for interface::WriteData<Error = E> {}
+    impl<E> Sealed for dyn interface::ReadData<Error = E> {}
+    impl<E> Sealed for dyn interface::WriteData<Error = E> {}
 }
