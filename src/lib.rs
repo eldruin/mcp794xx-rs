@@ -55,7 +55,7 @@ struct Config {
     bits: u8,
 }
 
-const DEVICE_ADDRESS: u8 = 0b1101111;
+const DEVICE_ADDRESS: u8 = 0b110_1111;
 
 struct Register;
 impl Register {
