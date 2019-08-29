@@ -5,15 +5,6 @@ use common::{destroy_mcp7940n, new_mcp7940n, BitFlags, Register, DEVICE_ADDRESS 
 extern crate mcp794xx;
 use mcp794xx::{DateTime, Error, Hours, Rtcc};
 
-macro_rules! set_invalid_param_test {
-    ($name:ident, $method:ident, $value:expr) => {
-        mod $name {
-            use super::*;
-            for_all_ics!(cannot_set_invalid, set_invalid_test, $method, $value);
-        }
-    };
-}
-
 macro_rules! set_invalid_param_range_test {
     ($name:ident, $method:ident, $too_small_value:expr, $too_big_value:expr) => {
         mod $name {

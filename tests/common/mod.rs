@@ -81,6 +81,16 @@ macro_rules! set_invalid_test {
 }
 
 #[macro_export]
+macro_rules! set_invalid_param_test {
+    ($name:ident, $method:ident $(, $value:expr)*) => {
+        mod $name {
+            use super::*;
+            for_all_ics!(cannot_set_invalid, set_invalid_test, $method, $($value),*);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! call_test {
     ($name:ident, $create_method:ident, $destroy_method:ident, $method:ident, $transactions:expr
     $(, $value:expr)*) => {
