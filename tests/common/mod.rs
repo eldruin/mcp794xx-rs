@@ -70,11 +70,11 @@ macro_rules! assert_invalid_input_data {
 
 #[macro_export]
 macro_rules! set_invalid_test {
-    ($name:ident, $create_method:ident, $destroy_method:ident, $method:ident, $value:expr) => {
+    ($name:ident, $create_method:ident, $destroy_method:ident, $method:ident $(, $value:expr)*) => {
         #[test]
         fn $name() {
             let mut dev = $create_method(&[]);
-            assert_invalid_input_data!(dev.$method($value));
+            assert_invalid_input_data!(dev.$method($($value),*));
             $destroy_method(dev);
         }
     };
