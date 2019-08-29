@@ -47,6 +47,7 @@ pub struct Mcp794xx<DI> {
     iface: DI,
     is_enabled: bool,
     is_battery_power_enabled: bool,
+    is_running_in_24h_mode: bool,
     control: Config,
 }
 
@@ -99,6 +100,7 @@ where
             iface: I2cInterface { i2c },
             is_enabled: false,
             is_battery_power_enabled: false,
+            is_running_in_24h_mode: false,
             control: Config {
                 bits: BitFlags::OUT,
             },

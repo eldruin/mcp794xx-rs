@@ -69,7 +69,12 @@ where
 
     fn set_hours(&mut self, hours: Hours) -> Result<(), Self::Error> {
         let value = hours_to_register(hours)?;
-        self.iface.write_register(Register::HOURS, value)
+        self.iface.write_register(Register::HOURS, value)?;
+        self.is_running_in_24h_mode = match hours {
+            Hours::H24(_) => true,
+            _ => false,
+        };
+        Ok(())
     }
 
     /// Note that this clears the power failed flag.
@@ -165,7 +170,12 @@ where
             decimal_to_packed_bcd(datetime.month),
             decimal_to_packed_bcd((datetime.year - 2000) as u8),
         ];
-        self.iface.write_data(&mut payload)
+        self.iface.write_data(&mut payload)?;
+        self.is_running_in_24h_mode = match datetime.hour {
+            Hours::H24(_) => true,
+            _ => false,
+        };
+        Ok(())
     }
 }
 
