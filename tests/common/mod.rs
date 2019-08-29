@@ -19,6 +19,8 @@ impl Register {
     pub const YEAR: u8 = 0x06;
     pub const CONTROL: u8 = 0x07;
     pub const OSCTRIM: u8 = 0x08;
+    pub const ALM0SEC: u8 = 0x0A;
+    pub const ALM1SEC: u8 = 0x11;
 }
 
 pub struct BitFlags;
@@ -34,6 +36,7 @@ impl BitFlags {
     pub const SQWEN: u8 = 0b0100_0000;
     pub const EXTOSC: u8 = 0b0000_1000;
     pub const CRSTRIM: u8 = 0b0000_0100;
+    pub const ALMPOL: u8 = 0b1000_0000;
 }
 
 pub fn new_mcp7940n(transactions: &[I2cTrans]) -> Mcp794xx<interface::I2cInterface<I2cMock>> {

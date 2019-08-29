@@ -41,6 +41,58 @@ pub enum OutputPinLevel {
     Low,
 }
 
+/// Alarm interrupt output pin polarity
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum AlarmOutputPinPolarity {
+    /// High logic level when alarm asserted
+    High,
+    /// Low logic level when alarm asserted
+    Low,
+}
+
+/// Alarm trigger rate
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum AlarmMatching {
+    /// Alarm triggers when seconds match.
+    SecondsMatch,
+    /// Alarm triggers when minutes match.
+    MinutesMatch,
+    /// Alarm triggers when hours match.
+    HoursMatch,
+    /// Alarm triggers when weekday matches.
+    WeekdayMatches,
+    /// Alarm triggers when day (date/day of month) matches.
+    DayMatches,
+    /// Alarm triggers when seconds, minutes, hours, weekday, day and month match.
+    AllMatch,
+}
+
+/// Alarm selection
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Alarm {
+    /// Alarm 0
+    Zero,
+    /// Alarm 1
+    One,
+}
+
+/// Alarm date/time
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AlarmDateTime {
+    /// Month [1-12]
+    pub month: u8,
+    /// Day [1-31]
+    pub day: u8,
+    /// Weekday [1-7]
+    pub weekday: u8,
+    /// Hour in 24h/12h format (format matches RTC)
+    pub hour: Hours,
+    /// Minute [0-59]
+    pub minute: u8,
+    /// Second [0-59]
+    pub second: u8,
+}
+
 /// MCP794xx RTCC driver
 #[derive(Debug)]
 pub struct Mcp794xx<DI> {
@@ -69,6 +121,8 @@ impl Register {
     const YEAR: u8 = 0x06;
     const CONTROL: u8 = 0x07;
     const OSCTRIM: u8 = 0x08;
+    const ALM0SEC: u8 = 0x0A;
+    const ALM1SEC: u8 = 0x11;
 }
 
 struct BitFlags;
@@ -84,11 +138,13 @@ impl BitFlags {
     const SQWEN: u8 = 0b0100_0000;
     const EXTOSC: u8 = 0b0000_1000;
     const CRSTRIM: u8 = 0b0000_0100;
+    const ALMPOL: u8 = 0b1000_0000;
 }
 
 pub mod interface;
 use interface::I2cInterface;
 mod common;
+use common::{decimal_to_packed_bcd, hours_to_register};
 
 impl<I2C, E> Mcp794xx<I2cInterface<I2C>>
 where
@@ -255,6 +311,58 @@ where
         }
     }
 
+    /// Set alarm for date/time with a trigger rate and an output pin polarity.
+    ///
+    /// Note that this clears the alarm has matched flag and the alarm needs to be
+    /// enabled separately.
+    pub fn set_alarm(
+        &mut self,
+        alarm: Alarm,
+        when: AlarmDateTime,
+        matching: AlarmMatching,
+        polarity: AlarmOutputPinPolarity,
+    ) -> Result<(), Error<E>> {
+        if when.month < 1
+            || when.month > 12
+            || when.day < 1
+            || when.day > 31
+            || when.weekday < 1
+            || when.weekday > 7
+            || when.minute > 59
+            || when.second > 59
+        {
+            return Err(Error::InvalidInputData);
+        }
+        let hours = convert_hours_to_format(self.is_running_in_24h_mode, when.hour)?;
+        let mut weekday = decimal_to_packed_bcd(when.weekday);
+        if polarity == AlarmOutputPinPolarity::High {
+            weekday |= BitFlags::ALMPOL;
+        }
+        let mask = match matching {
+            AlarmMatching::SecondsMatch => 0,
+            AlarmMatching::MinutesMatch => 1 << 4,
+            AlarmMatching::HoursMatch => 2 << 4,
+            AlarmMatching::WeekdayMatches => 3 << 4,
+            AlarmMatching::DayMatches => 4 << 4,
+            AlarmMatching::AllMatch => 7 << 4,
+        };
+        weekday |= mask;
+        let mut payload = [
+            if alarm == Alarm::Zero {
+                Register::ALM0SEC
+            } else {
+                Register::ALM1SEC
+            },
+            decimal_to_packed_bcd(when.second),
+            decimal_to_packed_bcd(when.minute),
+            hours_to_register(hours)?,
+            weekday,
+            decimal_to_packed_bcd(when.day),
+            decimal_to_packed_bcd(when.month),
+        ];
+        self.iface.write_data(&mut payload)
+    }
+
     fn write_control(&mut self, control: Config) -> Result<(), Error<E>> {
         self.iface.write_register(Register::CONTROL, control.bits)?;
         self.control = control;
@@ -278,6 +386,39 @@ where
     }
 }
 
+
+fn convert_hours_to_format<E>(is_running_in_24h_mode:bool, hours: Hours) -> Result<Hours, Error<E>> {
+    match hours {
+        Hours::H24(h) if h > 23 => Err(Error::InvalidInputData),
+        Hours::H24(h) => {
+            if is_running_in_24h_mode {
+                Ok(hours)
+            } else {
+                if h > 12 {
+                    Ok(Hours::PM(h - 12))
+                } else {
+                    Ok(Hours::AM(h))
+                }
+            }
+        }
+        Hours::AM(h) if h < 1 || h > 12 => Err(Error::InvalidInputData),
+        Hours::AM(h) => {
+            if is_running_in_24h_mode {
+                Ok(Hours::H24(h))
+            } else {
+                Ok(hours)
+            }
+        }
+        Hours::PM(h) if h < 1 || h > 12 => Err(Error::InvalidInputData),
+        Hours::PM(h) => {
+            if is_running_in_24h_mode {
+                Ok(Hours::H24(h + 12))
+            } else {
+                Ok(hours)
+            }
+        }
+    }
+}
 mod private {
     use super::interface;
     pub trait Sealed {}
@@ -285,4 +426,32 @@ mod private {
     impl<E> Sealed for interface::I2cInterface<E> {}
     impl<E> Sealed for dyn interface::ReadData<Error = E> {}
     impl<E> Sealed for dyn interface::WriteData<Error = E> {}
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_leave_untouched() {
+        assert_eq!(Hours::H24(23), convert_hours_to_format::<()>(true, Hours::H24(23)).unwrap());
+        assert_eq!(Hours::PM(11), convert_hours_to_format::<()>(false, Hours::PM(11)).unwrap());
+        assert_eq!(Hours::AM(11), convert_hours_to_format::<()>(false, Hours::AM(11)).unwrap());
+    }
+
+    #[test]
+    fn can_convert_12h_to_h24() {
+        assert_eq!(Hours::H24(11), convert_hours_to_format::<()>(true, Hours::AM(11)).unwrap());
+        assert_eq!(Hours::H24(3), convert_hours_to_format::<()>(true, Hours::AM(3)).unwrap());
+        assert_eq!(Hours::H24(23), convert_hours_to_format::<()>(true, Hours::PM(11)).unwrap());
+        assert_eq!(Hours::H24(15), convert_hours_to_format::<()>(true, Hours::PM(3)).unwrap());
+    }
+
+    #[test]
+    fn can_convert_h24_to_12h() {
+        assert_eq!(Hours::AM(11), convert_hours_to_format::<()>(false, Hours::H24(11)).unwrap());
+        assert_eq!(Hours::AM(3), convert_hours_to_format::<()>(false, Hours::H24(3)).unwrap());
+        assert_eq!(Hours::PM(11), convert_hours_to_format::<()>(false, Hours::H24(23)).unwrap());
+        assert_eq!(Hours::PM(3), convert_hours_to_format::<()>(false, Hours::H24(15)).unwrap());
+    }
 }
