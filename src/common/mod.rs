@@ -57,8 +57,76 @@ fn is_am(hours_data: u8) -> bool {
     hours_data & BitFlags::AM_PM == 0
 }
 
+pub(crate) fn convert_hours_to_format<E>(
+    is_running_in_24h_mode: bool,
+    hours: Hours,
+) -> Result<Hours, Error<E>> {
+    match hours {
+        Hours::H24(h) if h > 23 => Err(Error::InvalidInputData),
+        Hours::H24(h) => {
+            if is_running_in_24h_mode {
+                Ok(hours)
+            } else {
+                if h > 12 {
+                    Ok(Hours::PM(h - 12))
+                } else {
+                    Ok(Hours::AM(h))
+                }
+            }
+        }
+        Hours::AM(h) if h < 1 || h > 12 => Err(Error::InvalidInputData),
+        Hours::AM(h) => {
+            if is_running_in_24h_mode {
+                Ok(Hours::H24(h))
+            } else {
+                Ok(hours)
+            }
+        }
+        Hours::PM(h) if h < 1 || h > 12 => Err(Error::InvalidInputData),
+        Hours::PM(h) => {
+            if is_running_in_24h_mode {
+                Ok(Hours::H24(h + 12))
+            } else {
+                Ok(hours)
+            }
+        }
+    }
+}
+
 #[cfg(test)]
-mod tests {
+mod hours_conversion_tests {
+    use super::*;
+
+    fn convert(is_running_in_24h_mode: bool, hours: Hours) -> Result<Hours, Error<()>> {
+        convert_hours_to_format::<()>(is_running_in_24h_mode, hours)
+    }
+
+    #[test]
+    fn can_leave_untouched() {
+        assert_eq!(Hours::H24(23), convert(true, Hours::H24(23)).unwrap());
+        assert_eq!(Hours::PM(11), convert(false, Hours::PM(11)).unwrap());
+        assert_eq!(Hours::AM(11), convert(false, Hours::AM(11)).unwrap());
+    }
+
+    #[test]
+    fn can_convert_12h_to_h24() {
+        assert_eq!(Hours::H24(11), convert(true, Hours::AM(11)).unwrap());
+        assert_eq!(Hours::H24(3), convert(true, Hours::AM(3)).unwrap());
+        assert_eq!(Hours::H24(23), convert(true, Hours::PM(11)).unwrap());
+        assert_eq!(Hours::H24(15), convert(true, Hours::PM(3)).unwrap());
+    }
+
+    #[test]
+    fn can_convert_h24_to_12h() {
+        assert_eq!(Hours::AM(11), convert(false, Hours::H24(11)).unwrap());
+        assert_eq!(Hours::AM(3), convert(false, Hours::H24(3)).unwrap());
+        assert_eq!(Hours::PM(11), convert(false, Hours::H24(23)).unwrap());
+        assert_eq!(Hours::PM(3), convert(false, Hours::H24(15)).unwrap());
+    }
+}
+
+#[cfg(test)]
+mod bcd_conversion_tests {
     use super::*;
 
     #[test]
