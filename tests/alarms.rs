@@ -158,11 +158,7 @@ mod set_alarm {
     );
     set_alarm_test_variation!(
         hours_match,
-        [
-            ADT,
-            AlarmMatching::HoursMatch,
-            AlarmOutputPinPolarity::Low
-        ],
+        [ADT, AlarmMatching::HoursMatch, AlarmOutputPinPolarity::Low],
         0b0010_0000
     );
     set_alarm_test_variation!(
@@ -176,20 +172,12 @@ mod set_alarm {
     );
     set_alarm_test_variation!(
         day_matches,
-        [
-            ADT,
-            AlarmMatching::DayMatches,
-            AlarmOutputPinPolarity::Low
-        ],
+        [ADT, AlarmMatching::DayMatches, AlarmOutputPinPolarity::Low],
         0b0100_0000
     );
     set_alarm_test_variation!(
         all_match,
-        [
-            ADT,
-            AlarmMatching::AllMatch,
-            AlarmOutputPinPolarity::Low
-        ],
+        [ADT, AlarmMatching::AllMatch, AlarmOutputPinPolarity::Low],
         0b0111_0000
     );
     set_alarm_test_variation!(
