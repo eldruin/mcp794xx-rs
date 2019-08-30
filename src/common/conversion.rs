@@ -52,12 +52,10 @@ pub(crate) fn convert_hours_to_format<E>(
         Hours::H24(h) => {
             if is_running_in_24h_mode {
                 Ok(hours)
+            } else if h > 12 {
+                Ok(Hours::PM(h - 12))
             } else {
-                if h > 12 {
-                    Ok(Hours::PM(h - 12))
-                } else {
-                    Ok(Hours::AM(h))
-                }
+                Ok(Hours::AM(h))
             }
         }
         Hours::AM(h) if h < 1 || h > 12 => Err(Error::InvalidInputData),
