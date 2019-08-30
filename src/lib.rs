@@ -146,7 +146,7 @@ impl BitFlags {
 pub mod interface;
 use interface::I2cInterface;
 mod common;
-use common::{convert_hours_to_format, decimal_to_packed_bcd, hours_to_register};
+use common::conversion::{convert_hours_to_format, decimal_to_packed_bcd, hours_to_register};
 
 impl<I2C, E> Mcp794xx<I2cInterface<I2C>>
 where
