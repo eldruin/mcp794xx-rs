@@ -219,3 +219,32 @@ mod set_alarm {
     invalid_dt_test!(too_big_min, 11, 3, 2, Hours::H24(24), 60, 58);
     invalid_dt_test!(too_big_seconds, 11, 3, 2, Hours::H24(24), 59, 60);
 }
+
+set_param_test!(
+    en_alm0,
+    enable_alarm,
+    CONTROL,
+    Alarm::Zero,
+    [BitFlags::OUT | BitFlags::ALM0EN]
+);
+set_param_test!(
+    en_alm1,
+    enable_alarm,
+    CONTROL,
+    Alarm::One,
+    [BitFlags::OUT | BitFlags::ALM1EN]
+);
+set_param_test!(
+    dis_alm0,
+    disable_alarm,
+    CONTROL,
+    Alarm::Zero,
+    [BitFlags::OUT]
+);
+set_param_test!(
+    dis_alm1,
+    disable_alarm,
+    CONTROL,
+    Alarm::One,
+    [BitFlags::OUT]
+);

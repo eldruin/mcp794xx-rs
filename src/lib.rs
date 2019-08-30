@@ -139,6 +139,8 @@ impl BitFlags {
     const EXTOSC: u8 = 0b0000_1000;
     const CRSTRIM: u8 = 0b0000_0100;
     const ALMPOL: u8 = 0b1000_0000;
+    const ALM0EN: u8 = 0b0001_0000;
+    const ALM1EN: u8 = 0b0010_0000;
 }
 
 pub mod interface;
@@ -308,6 +310,22 @@ where
                 .write_register(Register::OSCTRIM, 0b1000_0000 | rest)
         } else {
             self.iface.write_register(Register::OSCTRIM, value as u8)
+        }
+    }
+
+    /// Enable alarm
+    pub fn enable_alarm(&mut self, alarm: Alarm) -> Result<(), Error<E>> {
+        match alarm {
+            Alarm::Zero => self.write_control(self.control.with_high(BitFlags::ALM0EN)),
+            Alarm::One => self.write_control(self.control.with_high(BitFlags::ALM1EN)),
+        }
+    }
+
+    /// Disable alarm
+    pub fn disable_alarm(&mut self, alarm: Alarm) -> Result<(), Error<E>> {
+        match alarm {
+            Alarm::Zero => self.write_control(self.control.with_low(BitFlags::ALM0EN)),
+            Alarm::One => self.write_control(self.control.with_low(BitFlags::ALM1EN)),
         }
     }
 
