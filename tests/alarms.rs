@@ -324,6 +324,42 @@ set_param_test!(
     [BitFlags::OUT]
 );
 
+get_param_test!(
+    alm0_not_matched,
+    has_alarm_matched,
+    Alarm::Zero,
+    ALM0WKDAY,
+    false,
+    [0]
+);
+
+get_param_test!(
+    alm0_matched,
+    has_alarm_matched,
+    Alarm::Zero,
+    ALM0WKDAY,
+    true,
+    [BitFlags::ALMIF]
+);
+
+get_param_test!(
+    alm1_not_matched,
+    has_alarm_matched,
+    Alarm::One,
+    ALM1WKDAY,
+    false,
+    [0]
+);
+
+get_param_test!(
+    alm1_matched,
+    has_alarm_matched,
+    Alarm::One,
+    ALM1WKDAY,
+    true,
+    [BitFlags::ALMIF]
+);
+
 macro_rules! call_update_method {
     ($name:ident, $method:ident, $arg:expr, $register:ident, $read:expr, $value:expr) => {
         for_all_ics!(

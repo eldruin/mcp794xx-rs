@@ -399,6 +399,19 @@ where
         Ok(())
     }
 
+    /// Returns whether the alarm has matched.
+    ///
+    /// Once this is true, it will stay as such until cleared. e.g. with
+    /// [`clear_alarm_matched_flag()`](#method.clear_alarm_matched_flag)
+    pub fn has_alarm_matched(&mut self, alarm: Alarm) -> Result<bool, Error<E>> {
+        let reg = match alarm {
+            Alarm::Zero => Register::ALM0WKDAY,
+            Alarm::One => Register::ALM1WKDAY,
+        };
+        let data = self.iface.read_register(reg)?;
+        Ok((data & BitFlags::ALMIF) != 0)
+    }
+
     /// Clears the alarm matched flag.
     pub fn clear_alarm_matched_flag(&mut self, alarm: Alarm) -> Result<(), Error<E>> {
         let reg = match alarm {

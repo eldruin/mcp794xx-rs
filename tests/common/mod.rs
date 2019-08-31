@@ -130,6 +130,12 @@ macro_rules! get_param_test {
             [ I2cTrans::write_read(DEV_ADDR, vec![Register::$register1], vec![$( $read_bin ),*]) ],
             $value);
     };
+    ($name:ident, $method:ident, $arg:expr, $register1:ident, $value:expr, [ $( $read_bin:expr ),+ ]) => {
+        for_all_ics!(
+            $name, get_test, $method,
+            [ I2cTrans::write_read(DEV_ADDR, vec![Register::$register1], vec![$( $read_bin ),*]) ],
+            $value, $arg);
+    };
 }
 
 #[macro_export]
