@@ -1,7 +1,9 @@
 //! Common date/time function
 
 use super::super::{BitFlags, DateTime, Error, Hours, Mcp794xx, Register, Rtcc};
-use super::conversion::{decimal_to_packed_bcd, hours_from_register, hours_to_register, packed_bcd_to_decimal};
+use super::conversion::{
+    decimal_to_packed_bcd, hours_from_register, hours_to_register, packed_bcd_to_decimal,
+};
 use interface;
 
 impl<DI, E> Rtcc for Mcp794xx<DI>

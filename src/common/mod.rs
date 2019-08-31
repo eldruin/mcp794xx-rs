@@ -1,6 +1,6 @@
 use super::Config;
-pub mod datetime;
 pub mod conversion;
+pub mod datetime;
 
 impl Config {
     pub(crate) fn with_high(self, mask: u8) -> Self {
