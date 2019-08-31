@@ -180,15 +180,6 @@ mod set_alarm {
         [ADT, AlarmMatching::AllMatch, AlarmOutputPinPolarity::Low],
         0b0111_0000
     );
-    set_alarm_test_variation!(
-        high_polarity,
-        [
-            ADT,
-            AlarmMatching::SecondsMatch,
-            AlarmOutputPinPolarity::High
-        ],
-        BitFlags::ALMPOL
-    );
 
     const ADT_3PM: AlarmDateTime = AlarmDateTime {
         month: 11,
@@ -208,6 +199,90 @@ mod set_alarm {
         ],
         0
     );
+
+    mod set_high_polarity {
+        use super::*;
+        const MATCH: AlarmMatching = AlarmMatching::SecondsMatch;
+        const POL: AlarmOutputPinPolarity = AlarmOutputPinPolarity::High;
+        const ALM0: Alarm = Alarm::Zero;
+        for_all_ics!(
+            alm0_high_polarity,
+            call_set_alarm_test,
+            [
+                I2cTrans::write(
+                    DEV_ADDR,
+                    vec![
+                        Register::SECONDS,
+                        0b0101_1000,
+                        0b0101_1001,
+                        0b0010_0011,
+                        0b0000_0010,
+                        0b0001_0011,
+                        0b0001_0001,
+                        0b0001_1001
+                    ]
+                ),
+                I2cTrans::write(
+                    DEV_ADDR,
+                    vec![
+                        Register::ALM0SEC,
+                        0b0100_0001,
+                        0b0011_0010,
+                        0b0001_0101,
+                        0b0000_0100 | BitFlags::ALMPOL,
+                        0b0000_0011,
+                        0b0001_0001
+                    ]
+                )
+            ],
+            ALM0,
+            ADT,
+            MATCH,
+            POL
+        );
+
+        const ALM1: Alarm = Alarm::One;
+        for_all_ics!(
+            alarm1_high_polarity_changes_alarm0_polarity_if_it_does_not_match,
+            call_set_alarm_test,
+            [
+                I2cTrans::write(
+                    DEV_ADDR,
+                    vec![
+                        Register::SECONDS,
+                        0b0101_1000,
+                        0b0101_1001,
+                        0b0010_0011,
+                        0b0000_0010,
+                        0b0001_0011,
+                        0b0001_0001,
+                        0b0001_1001
+                    ]
+                ),
+                I2cTrans::write_read(DEV_ADDR, vec![Register::ALM0WKDAY], vec![0b0101_0110]),
+                I2cTrans::write(
+                    DEV_ADDR,
+                    vec![Register::ALM0WKDAY, 0b0101_0110 | BitFlags::ALMPOL]
+                ),
+                I2cTrans::write(
+                    DEV_ADDR,
+                    vec![
+                        Register::ALM1SEC,
+                        0b0100_0001,
+                        0b0011_0010,
+                        0b0001_0101,
+                        0b0000_0100 | BitFlags::ALMPOL,
+                        0b0000_0011,
+                        0b0001_0001
+                    ]
+                )
+            ],
+            ALM1,
+            ADT,
+            MATCH,
+            POL
+        );
+    }
 
     invalid_dt_test!(too_small_month, 0, 3, 2, Hours::H24(23), 59, 58);
     invalid_dt_test!(too_big_month, 13, 3, 2, Hours::H24(23), 59, 58);

@@ -21,6 +21,7 @@ impl Register {
     pub const OSCTRIM: u8 = 0x08;
     pub const ALM0SEC: u8 = 0x0A;
     pub const ALM1SEC: u8 = 0x11;
+    pub const ALM0WKDAY: u8 = 0x0D;
 }
 
 pub struct BitFlags;

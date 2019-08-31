@@ -101,6 +101,7 @@ pub struct Mcp794xx<DI> {
     is_battery_power_enabled: bool,
     is_running_in_24h_mode: bool,
     control: Config,
+    alarm_output_pin_polarity: AlarmOutputPinPolarity,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -123,6 +124,7 @@ impl Register {
     const OSCTRIM: u8 = 0x08;
     const ALM0SEC: u8 = 0x0A;
     const ALM1SEC: u8 = 0x11;
+    const ALM0WKDAY: u8 = 0x0D;
 }
 
 struct BitFlags;
@@ -162,6 +164,7 @@ where
             control: Config {
                 bits: BitFlags::OUT,
             },
+            alarm_output_pin_polarity: AlarmOutputPinPolarity::Low,
         }
     }
 
@@ -333,6 +336,7 @@ where
     ///
     /// Note that this clears the alarm has matched flag and the alarm needs to be
     /// enabled separately.
+    /// Note that the output pin polarity will be set to the same value for both alarms.
     pub fn set_alarm(
         &mut self,
         alarm: Alarm,
@@ -353,6 +357,16 @@ where
         }
         let hours = convert_hours_to_format(self.is_running_in_24h_mode, when.hour)?;
         let mut weekday = decimal_to_packed_bcd(when.weekday);
+        if polarity != self.alarm_output_pin_polarity && alarm == Alarm::One {
+            let data = self.iface.read_register(Register::ALM0WKDAY)?;
+            let data = match polarity {
+                AlarmOutputPinPolarity::Low => data & !BitFlags::ALMPOL,
+                AlarmOutputPinPolarity::High => data | BitFlags::ALMPOL,
+            };
+            self.iface.write_register(Register::ALM0WKDAY, data)?;
+            self.alarm_output_pin_polarity = polarity;
+        }
+
         if polarity == AlarmOutputPinPolarity::High {
             weekday |= BitFlags::ALMPOL;
         }
@@ -378,7 +392,9 @@ where
             decimal_to_packed_bcd(when.day),
             decimal_to_packed_bcd(when.month),
         ];
-        self.iface.write_data(&mut payload)
+        self.iface.write_data(&mut payload)?;
+        self.alarm_output_pin_polarity = polarity;
+        Ok(())
     }
 
     fn write_control(&mut self, control: Config) -> Result<(), Error<E>> {
