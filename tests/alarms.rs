@@ -323,3 +323,35 @@ set_param_test!(
     Alarm::One,
     [BitFlags::OUT]
 );
+
+macro_rules! call_update_method {
+    ($name:ident, $method:ident, $arg:expr, $register:ident, $read:expr, $value:expr) => {
+        for_all_ics!(
+            $name,
+            call_test,
+            $method,
+            [
+                I2cTrans::write_read(DEV_ADDR, vec![Register::$register], vec![$read]),
+                I2cTrans::write(DEV_ADDR, vec![Register::$register, $value])
+            ],
+            $arg
+        );
+    };
+}
+
+call_update_method!(
+    clear_alarm0_matched,
+    clear_alarm_matched_flag,
+    Alarm::Zero,
+    ALM0WKDAY,
+    BitFlags::ALMIF,
+    0
+);
+call_update_method!(
+    clear_alarm1_matched,
+    clear_alarm_matched_flag,
+    Alarm::One,
+    ALM1WKDAY,
+    BitFlags::ALMIF,
+    0
+);

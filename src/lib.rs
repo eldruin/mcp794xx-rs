@@ -125,6 +125,7 @@ impl Register {
     const ALM0SEC: u8 = 0x0A;
     const ALM1SEC: u8 = 0x11;
     const ALM0WKDAY: u8 = 0x0D;
+    const ALM1WKDAY: u8 = 0x14;
 }
 
 struct BitFlags;
@@ -143,6 +144,7 @@ impl BitFlags {
     const ALMPOL: u8 = 0b1000_0000;
     const ALM0EN: u8 = 0b0001_0000;
     const ALM1EN: u8 = 0b0010_0000;
+    const ALMIF: u8 = 0b0000_1000;
 }
 
 pub mod interface;
@@ -395,6 +397,16 @@ where
         self.iface.write_data(&mut payload)?;
         self.alarm_output_pin_polarity = polarity;
         Ok(())
+    }
+
+    /// Clears the alarm matched flag.
+    pub fn clear_alarm_matched_flag(&mut self, alarm: Alarm) -> Result<(), Error<E>> {
+        let reg = match alarm {
+            Alarm::Zero => Register::ALM0WKDAY,
+            Alarm::One => Register::ALM1WKDAY,
+        };
+        let data = self.iface.read_register(reg)?;
+        self.iface.write_register(reg, data & !BitFlags::ALMIF)
     }
 
     fn write_control(&mut self, control: Config) -> Result<(), Error<E>> {
