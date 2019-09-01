@@ -119,16 +119,16 @@ where
     /// but only the two last year digits are stored so we will return
     /// the year as in the range 2000-2099.
     fn get_datetime(&mut self) -> Result<DateTime, Self::Error> {
-        let mut data = [0; 8];
-        self.iface.read_data(&mut data)?;
+        let mut data = [0; 7];
+        self.iface.read_data(0, &mut data)?;
         Ok(DateTime {
-            year: 2000 + u16::from(packed_bcd_to_decimal(data[Register::YEAR as usize + 1])),
-            month: packed_bcd_to_decimal(data[Register::MONTH as usize + 1] & !BitFlags::LEAPYEAR),
-            day: packed_bcd_to_decimal(data[Register::DAY as usize + 1]),
-            weekday: packed_bcd_to_decimal(data[Register::WEEKDAY as usize + 1] & 0b111),
-            hour: hours_from_register(data[Register::HOURS as usize + 1]),
-            minute: packed_bcd_to_decimal(data[Register::MINUTES as usize + 1]),
-            second: packed_bcd_to_decimal(data[Register::SECONDS as usize + 1] & !BitFlags::ST),
+            year: 2000 + u16::from(packed_bcd_to_decimal(data[Register::YEAR as usize])),
+            month: packed_bcd_to_decimal(data[Register::MONTH as usize] & !BitFlags::LEAPYEAR),
+            day: packed_bcd_to_decimal(data[Register::DAY as usize]),
+            weekday: packed_bcd_to_decimal(data[Register::WEEKDAY as usize] & 0b111),
+            hour: hours_from_register(data[Register::HOURS as usize]),
+            minute: packed_bcd_to_decimal(data[Register::MINUTES as usize]),
+            second: packed_bcd_to_decimal(data[Register::SECONDS as usize] & !BitFlags::ST),
         })
     }
 

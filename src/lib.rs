@@ -253,15 +253,14 @@ where
     }
 
     fn get_power_fail(&mut self, starting_register: u8) -> Result<PowerFailDateTime, Error<E>> {
-        let mut data = [0; 5];
-        data[0] = starting_register;
-        self.iface.read_data(&mut data)?;
+        let mut data = [0; 4];
+        self.iface.read_data(starting_register, &mut data)?;
         Ok(PowerFailDateTime {
-            minute: packed_bcd_to_decimal(data[1]),
-            hour: hours_from_register(data[2]),
-            day: packed_bcd_to_decimal(data[3]),
-            weekday: data[4] >> 5,
-            month: packed_bcd_to_decimal(data[4] & 0b0001_1111),
+            minute: packed_bcd_to_decimal(data[0]),
+            hour: hours_from_register(data[1]),
+            day: packed_bcd_to_decimal(data[2]),
+            weekday: data[3] >> 5,
+            month: packed_bcd_to_decimal(data[3] & 0b0001_1111),
         })
     }
 

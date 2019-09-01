@@ -44,8 +44,8 @@ pub trait ReadData {
     type Error;
     /// Read an u8 register
     fn read_register(&mut self, register: u8) -> Result<u8, Self::Error>;
-    /// Read some data. The first element corresponds to the starting address.
-    fn read_data(&mut self, payload: &mut [u8]) -> Result<(), Self::Error>;
+    /// Read some data.
+    fn read_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error>;
 }
 
 impl<I2C, E> ReadData for I2cInterface<I2C>
@@ -62,10 +62,9 @@ where
             .and(Ok(data[0]))
     }
 
-    fn read_data(&mut self, payload: &mut [u8]) -> Result<(), Self::Error> {
-        let len = payload.len();
+    fn read_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error> {
         self.i2c
-            .write_read(DEVICE_ADDRESS, &[payload[0]], &mut payload[1..len])
+            .write_read(DEVICE_ADDRESS, &[address], &mut payload[..])
             .map_err(Error::Comm)
     }
 }
