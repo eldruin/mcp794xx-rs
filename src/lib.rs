@@ -93,6 +93,21 @@ pub struct AlarmDateTime {
     pub second: u8,
 }
 
+/// Power fail date/time
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PowerFailDateTime {
+    /// Month [1-12]
+    pub month: u8,
+    /// Day [1-31]
+    pub day: u8,
+    /// Weekday [1-7]
+    pub weekday: u8,
+    /// Hour in 24h/12h format (format matches RTC)
+    pub hour: Hours,
+    /// Minute [0-59]
+    pub minute: u8,
+}
+
 /// MCP794xx RTCC driver
 #[derive(Debug)]
 pub struct Mcp794xx<DI> {
@@ -126,6 +141,7 @@ impl Register {
     const ALM1SEC: u8 = 0x11;
     const ALM0WKDAY: u8 = 0x0D;
     const ALM1WKDAY: u8 = 0x14;
+    const PWRDNMIN: u8 = 0x18;
 }
 
 struct BitFlags;
@@ -150,7 +166,10 @@ impl BitFlags {
 pub mod interface;
 use interface::I2cInterface;
 mod common;
-use common::conversion::{convert_hours_to_format, decimal_to_packed_bcd, hours_to_register};
+use common::conversion::{
+    convert_hours_to_format, decimal_to_packed_bcd, hours_from_register, hours_to_register,
+    packed_bcd_to_decimal,
+};
 
 impl<I2C, E> Mcp794xx<I2cInterface<I2C>>
 where
@@ -214,6 +233,27 @@ where
         let data = self.iface.read_register(Register::WEEKDAY)?;
         let data = data & !BitFlags::PWRFAIL;
         self.iface.write_register(Register::WEEKDAY, data)
+    }
+
+    /// Returns date/time when the power failed went down (under Vtrip).
+    ///
+    /// Note that the registers need to be cleared by calling
+    /// [`clear_power_failed()`](#method.clear_power_failed)
+    pub fn get_power_down_datetime(&mut self) -> Result<PowerFailDateTime, Error<E>> {
+        self.get_power_fail(Register::PWRDNMIN)
+    }
+
+    fn get_power_fail(&mut self, starting_register: u8) -> Result<PowerFailDateTime, Error<E>> {
+        let mut data = [0; 5];
+        data[0] = starting_register;
+        self.iface.read_data(&mut data)?;
+        Ok(PowerFailDateTime {
+            minute: packed_bcd_to_decimal(data[1]),
+            hour: hours_from_register(data[2]),
+            day: packed_bcd_to_decimal(data[3]),
+            weekday: data[4] >> 5,
+            month: packed_bcd_to_decimal(data[4] & 0b0001_1111),
+        })
     }
 
     /// Enable usage of backup battery power.
