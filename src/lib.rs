@@ -142,6 +142,7 @@ impl Register {
     const ALM0WKDAY: u8 = 0x0D;
     const ALM1WKDAY: u8 = 0x14;
     const PWRDNMIN: u8 = 0x18;
+    const PWRUPMIN: u8 = 0x1C;
 }
 
 struct BitFlags;
@@ -241,6 +242,14 @@ where
     /// [`clear_power_failed()`](#method.clear_power_failed)
     pub fn get_power_down_datetime(&mut self) -> Result<PowerFailDateTime, Error<E>> {
         self.get_power_fail(Register::PWRDNMIN)
+    }
+
+    /// Returns date/time when the power went back up (above Vtrip).
+    ///
+    /// Note that the registers need to be cleared by calling
+    /// [`clear_power_failed()`](#method.clear_power_failed)
+    pub fn get_power_up_datetime(&mut self) -> Result<PowerFailDateTime, Error<E>> {
+        self.get_power_fail(Register::PWRUPMIN)
     }
 
     fn get_power_fail(&mut self, starting_register: u8) -> Result<PowerFailDateTime, Error<E>> {

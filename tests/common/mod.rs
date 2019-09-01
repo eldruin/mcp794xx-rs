@@ -24,6 +24,7 @@ impl Register {
     pub const ALM0WKDAY: u8 = 0x0D;
     pub const ALM1WKDAY: u8 = 0x14;
     pub const PWRDNMIN: u8 = 0x18;
+    pub const PWRUPMIN: u8 = 0x1C;
 }
 
 pub struct BitFlags;
