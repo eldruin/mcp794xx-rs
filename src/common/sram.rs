@@ -15,4 +15,15 @@ where
         }
         self.iface.read_register(address)
     }
+
+    /// Write a single byte to an address.
+    ///
+    /// Valid addresses are from 0x20 to 0x5F. Otherwise an
+    /// Error::InvalidInputData will be returned.
+    pub fn write_sram_byte(&mut self, address: u8, data: u8) -> Result<(), Error<E>> {
+        if address < 0x20 || address > 0x5F {
+            return Err(Error::InvalidInputData);
+        }
+        self.iface.write_register(address, data)
+    }
 }
