@@ -1,6 +1,7 @@
 use super::Config;
 pub mod conversion;
 pub mod datetime;
+pub mod sram;
 
 impl Config {
     pub(crate) fn with_high(self, mask: u8) -> Self {
