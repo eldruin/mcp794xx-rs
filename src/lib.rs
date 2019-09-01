@@ -209,7 +209,7 @@ where
         Ok((data & BitFlags::PWRFAIL) != 0)
     }
 
-    /// Clears the power failed status flag.
+    /// Clears the power failed status flag and power-fail time-stamp registers.
     pub fn clear_power_failed(&mut self) -> Result<(), Error<E>> {
         let data = self.iface.read_register(Register::WEEKDAY)?;
         let data = data & !BitFlags::PWRFAIL;
