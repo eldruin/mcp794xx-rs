@@ -162,7 +162,7 @@ where
         } else {
             weekday
         };
-        let mut payload = [
+        let payload = [
             Register::SECONDS,
             second,
             decimal_to_packed_bcd(datetime.minute),
@@ -172,7 +172,7 @@ where
             decimal_to_packed_bcd(datetime.month),
             decimal_to_packed_bcd((datetime.year - 2000) as u8),
         ];
-        self.iface.write_data(&mut payload)?;
+        self.iface.write_data(&payload)?;
         self.is_running_in_24h_mode = match datetime.hour {
             Hours::H24(_) => true,
             _ => false,

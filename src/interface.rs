@@ -15,7 +15,7 @@ pub trait WriteData {
     /// Write to an u8 register
     fn write_register(&mut self, register: u8, data: u8) -> Result<(), Self::Error>;
     /// Write data. The first element corresponds to the starting address.
-    fn write_data(&mut self, payload: &mut [u8]) -> Result<(), Self::Error>;
+    fn write_data(&mut self, payload: &[u8]) -> Result<(), Self::Error>;
 }
 
 impl<I2C, E> WriteData for I2cInterface<I2C>
@@ -31,7 +31,7 @@ where
             .map_err(Error::Comm)
     }
 
-    fn write_data(&mut self, payload: &mut [u8]) -> Result<(), Self::Error> {
+    fn write_data(&mut self, payload: &[u8]) -> Result<(), Self::Error> {
         self.i2c
             .write(DEVICE_ADDRESS, &payload)
             .map_err(Error::Comm)

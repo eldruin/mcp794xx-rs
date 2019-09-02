@@ -429,7 +429,7 @@ where
             AlarmMatching::AllMatch => 7 << 4,
         };
         weekday |= mask;
-        let mut payload = [
+        let payload = [
             if alarm == Alarm::Zero {
                 Register::ALM0SEC
             } else {
@@ -442,7 +442,7 @@ where
             decimal_to_packed_bcd(when.day),
             decimal_to_packed_bcd(when.month),
         ];
-        self.iface.write_data(&mut payload)?;
+        self.iface.write_data(&payload)?;
         self.alarm_output_pin_polarity = polarity;
         Ok(())
     }
