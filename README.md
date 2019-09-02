@@ -73,7 +73,7 @@ fn main() {
 
 This driver is compatible with:
 
-- [ ] MCP7940N
+- [X] MCP7940N
 - [ ] MCP7940M
 - [ ] MCP79400
 - [ ] MCP79401
