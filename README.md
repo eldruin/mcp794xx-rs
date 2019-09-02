@@ -35,39 +35,45 @@ Datasheets:
 
 To use this driver, import this crate and an `embedded_hal` implementation,
 then instantiate the appropriate device.
-<!--TODO
-In the following example an instance of the device DS3231 will be created.
+
+In the following example an instance of the device MCP7940N will be created.
+<!--
 Other devices can be created with similar methods like:
 `Mcp794xx::new_mcp7940n(...)`.
-
+-->
 Please find additional examples using hardware in this repository: [driver-examples]
 
 [driver-examples]: https://github.com/eldruin/driver-examples
 
 ```rust
-extern crate linux_embedded_hal as hal;
+extern crate embedded_hal;
+extern crate linux_embedded_hal;
 extern crate mcp794xx;
-use mcp794xx::{ Mcp794xx, DateTime, Hours };
+
+use linux_embedded_hal::I2cdev;
+use mcp794xx::{DateTime, Hours, Mcp794xx, Rtcc};
 
 fn main() {
-    let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+    let dev = I2cdev::new("/dev/i2c-1").unwrap();
     let mut rtc = Mcp794xx::new_mcp7940n(dev);
+    rtc.enable().unwrap();
     let datetime = DateTime {
-                              year: 2018,
-                              month: 8,
-                              day: 20,
-                              weekday: 4,
-                              hour: Hours::H24(19),
-                              minute: 59,
-                              second: 58
-                  };
+        year: 2018,
+        month: 8,
+        day: 20,
+        weekday: 4,
+        hour: Hours::H24(19),
+        minute: 59,
+        second: 58,
+    };
     rtc.set_datetime(&datetime).unwrap();
     // do something else...
     let seconds = rtc.get_seconds().unwrap();
     println!("Seconds: {}", seconds);
+
+    let _dev = rtc.destroy_mcp7940n();
 }
 ```
--->
 
 ## Status
 
