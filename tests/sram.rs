@@ -63,3 +63,31 @@ for_all_ics!(
     [1, 2, 3, 4, 5],
     [1, 2, 3, 4, 5]
 );
+
+set_invalid_param_test!(write_sram_data_too_sml_addr, write_sram_data, 0x19, &[0]);
+set_invalid_param_test!(write_sram_data_too_big_addr, write_sram_data, 0x60, &[0]);
+set_invalid_param_test!(write_sram_data_too_much1, write_sram_data, 0x5F, &[0; 2]);
+set_invalid_param_test!(write_sram_data_too_much2, write_sram_data, 0x20, &[0; 65]);
+
+#[macro_export]
+macro_rules! write_data_test {
+    ($name:ident, $create_method:ident, $destroy_method:ident,
+    $method:ident, $transactions:expr, $addr:expr, $value:expr) => {
+        #[test]
+        fn $name() {
+            let trans = $transactions;
+            let mut dev = $create_method(&trans);
+            dev.$method($addr, &$value).unwrap();
+            $destroy_method(dev);
+        }
+    };
+}
+
+for_all_ics!(
+    can_write_data,
+    write_data_test,
+    write_sram_data,
+    [I2cTrans::write(DEV_ADDR, vec![0x20, 1, 2, 3, 4, 5])],
+    0x20,
+    [1, 2, 3, 4, 5]
+);
