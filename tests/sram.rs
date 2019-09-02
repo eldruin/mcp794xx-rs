@@ -28,3 +28,38 @@ for_all_ics!(
     0x20,
     15
 );
+
+set_invalid_param_test!(read_sram_data_too_sml_addr, read_sram_data, 0x19, &mut [0]);
+set_invalid_param_test!(read_sram_data_too_big_addr, read_sram_data, 0x60, &mut [0]);
+set_invalid_param_test!(read_sram_data_too_much1, read_sram_data, 0x5F, &mut [0; 2]);
+set_invalid_param_test!(read_sram_data_too_much2, read_sram_data, 0x20, &mut [0; 65]);
+
+#[macro_export]
+macro_rules! read_data_test {
+    ($name:ident, $create_method:ident, $destroy_method:ident,
+    $method:ident, $transactions:expr, $addr:expr, $value:expr, $expected:expr) => {
+        #[test]
+        fn $name() {
+            let trans = $transactions;
+            let mut dev = $create_method(&trans);
+            let mut data = [0; 5];
+            dev.$method($addr, &mut data).unwrap();
+            assert_eq!($expected, data);
+            $destroy_method(dev);
+        }
+    };
+}
+
+for_all_ics!(
+    can_read_data,
+    read_data_test,
+    read_sram_data,
+    [I2cTrans::write_read(
+        DEV_ADDR,
+        vec![0x20],
+        vec![1, 2, 3, 4, 5]
+    )],
+    0x20,
+    [1, 2, 3, 4, 5],
+    [1, 2, 3, 4, 5]
+);

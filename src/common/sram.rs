@@ -26,4 +26,17 @@ where
         }
         self.iface.write_register(address, data)
     }
+
+    /// Read SRAM starting in an address as many bytes as necessary to fill
+    /// the data array provided.
+    pub fn read_sram_data(&mut self, address: u8, data: &mut [u8]) -> Result<(), Error<E>> {
+        if address < 0x20
+            || address > 0x5F
+            || data.len() > 64
+            || (data.len() as u8 + address) > 0x60
+        {
+            return Err(Error::InvalidInputData);
+        }
+        self.iface.read_data(address, data)
+    }
 }
