@@ -1,7 +1,7 @@
 use super::super::interface;
 use super::super::{Error, Mcp794xx};
 
-impl<DI, E> Mcp794xx<DI>
+impl<DI, E, IC> Mcp794xx<DI, IC>
 where
     DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
 {

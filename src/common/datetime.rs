@@ -6,7 +6,7 @@ use super::conversion::{
 };
 use interface;
 
-impl<DI, E> Rtcc for Mcp794xx<DI>
+impl<DI, E, IC> Rtcc for Mcp794xx<DI, IC>
 where
     DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
 {
@@ -181,7 +181,7 @@ where
     }
 }
 
-impl<DI, E> Mcp794xx<DI>
+impl<DI, E, IC> Mcp794xx<DI, IC>
 where
     DI: interface::ReadData<Error = Error<E>>,
 {

@@ -1,6 +1,6 @@
 extern crate embedded_hal;
 extern crate mcp794xx;
-use self::mcp794xx::{interface, Mcp794xx};
+use self::mcp794xx::{ic, interface, Mcp794xx};
 extern crate embedded_hal_mock as hal;
 use self::hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 
@@ -46,11 +46,13 @@ impl BitFlags {
     pub const ALMIF: u8 = 0b0000_1000;
 }
 
-pub fn new_mcp7940n(transactions: &[I2cTrans]) -> Mcp794xx<interface::I2cInterface<I2cMock>> {
+pub fn new_mcp7940n(
+    transactions: &[I2cTrans],
+) -> Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940n> {
     Mcp794xx::new_mcp7940n(I2cMock::new(&transactions))
 }
 
-pub fn destroy_mcp7940n(dev: Mcp794xx<interface::I2cInterface<I2cMock>>) {
+pub fn destroy_mcp7940n(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940n>) {
     dev.destroy_mcp7940n().done();
 }
 

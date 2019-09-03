@@ -8,6 +8,7 @@
 
 extern crate embedded_hal as hal;
 extern crate rtcc;
+use core::marker::PhantomData;
 pub use rtcc::{DateTime, Hours, Rtcc};
 
 /// All possible errors in this crate
@@ -108,15 +109,31 @@ pub struct PowerFailDateTime {
     pub minute: u8,
 }
 
+/// Feature markers
+pub mod marker {
+    use super::private;
+    /// Supports backup battery power
+    pub trait WithBatteryPower: private::Sealed {}
+}
+
+/// IC markers
+pub mod ic {
+    /// MCP7940N IC marker
+    pub struct Mcp7940n(());
+}
+
+impl marker::WithBatteryPower for ic::Mcp7940n {}
+
 /// MCP794xx RTCC driver
 #[derive(Debug)]
-pub struct Mcp794xx<DI> {
+pub struct Mcp794xx<DI, IC> {
     iface: DI,
     is_enabled: bool,
     is_battery_power_enabled: bool,
     is_running_in_24h_mode: bool,
     control: Config,
     alarm_output_pin_polarity: AlarmOutputPinPolarity,
+    _ic: PhantomData<IC>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -172,7 +189,7 @@ use common::conversion::{
     packed_bcd_to_decimal,
 };
 
-impl<I2C, E> Mcp794xx<I2cInterface<I2C>>
+impl<I2C, E> Mcp794xx<I2cInterface<I2C>, ic::Mcp7940n>
 where
     I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
 {
@@ -187,6 +204,7 @@ where
                 bits: BitFlags::OUT,
             },
             alarm_output_pin_polarity: AlarmOutputPinPolarity::Low,
+            _ic: PhantomData,
         }
     }
 
@@ -195,7 +213,8 @@ where
         self.iface.i2c
     }
 }
-impl<DI, E> Mcp794xx<DI>
+
+impl<DI, E, IC> Mcp794xx<DI, IC>
 where
     DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
 {
@@ -221,69 +240,6 @@ where
     pub fn is_oscillator_running(&mut self) -> Result<bool, Error<E>> {
         let data = self.iface.read_register(Register::WEEKDAY)?;
         Ok((data & BitFlags::OSCRUN) != 0)
-    }
-
-    /// Returns whether the primary power has failed.
-    pub fn has_power_failed(&mut self) -> Result<bool, Error<E>> {
-        let data = self.iface.read_register(Register::WEEKDAY)?;
-        Ok((data & BitFlags::PWRFAIL) != 0)
-    }
-
-    /// Clears the power failed status flag and power-fail time-stamp registers.
-    pub fn clear_power_failed(&mut self) -> Result<(), Error<E>> {
-        let data = self.iface.read_register(Register::WEEKDAY)?;
-        let data = data & !BitFlags::PWRFAIL;
-        self.iface.write_register(Register::WEEKDAY, data)
-    }
-
-    /// Returns date/time when the power failed went down (under Vtrip).
-    ///
-    /// Note that the registers need to be cleared by calling
-    /// [`clear_power_failed()`](#method.clear_power_failed)
-    pub fn get_power_down_datetime(&mut self) -> Result<PowerFailDateTime, Error<E>> {
-        self.get_power_fail(Register::PWRDNMIN)
-    }
-
-    /// Returns date/time when the power went back up (above Vtrip).
-    ///
-    /// Note that the registers need to be cleared by calling
-    /// [`clear_power_failed()`](#method.clear_power_failed)
-    pub fn get_power_up_datetime(&mut self) -> Result<PowerFailDateTime, Error<E>> {
-        self.get_power_fail(Register::PWRUPMIN)
-    }
-
-    fn get_power_fail(&mut self, starting_register: u8) -> Result<PowerFailDateTime, Error<E>> {
-        let mut data = [0; 4];
-        self.iface.read_data(starting_register, &mut data)?;
-        Ok(PowerFailDateTime {
-            minute: packed_bcd_to_decimal(data[0]),
-            hour: hours_from_register(data[1]),
-            day: packed_bcd_to_decimal(data[2]),
-            weekday: data[3] >> 5,
-            month: packed_bcd_to_decimal(data[3] & 0b0001_1111),
-        })
-    }
-
-    /// Enable usage of backup battery power.
-    ///
-    /// Note that this clears the power failed flag.
-    pub fn enable_backup_battery_power(&mut self) -> Result<(), Error<E>> {
-        let data = self.iface.read_register(Register::WEEKDAY)?;
-        let data = data | BitFlags::VBATEN;
-        self.iface.write_register(Register::WEEKDAY, data)?;
-        self.is_battery_power_enabled = true;
-        Ok(())
-    }
-
-    /// Disable usage of backup battery power (default).
-    ///
-    /// Note that this clears the power failed flag.
-    pub fn disable_backup_battery_power(&mut self) -> Result<(), Error<E>> {
-        let data = self.iface.read_register(Register::WEEKDAY)?;
-        let data = data & !BitFlags::VBATEN;
-        self.iface.write_register(Register::WEEKDAY, data)?;
-        self.is_battery_power_enabled = false;
-        Ok(())
     }
 
     /// Enable usage of external oscillator source.
@@ -493,11 +449,81 @@ where
     }
 }
 
+impl<DI, E, IC> Mcp794xx<DI, IC>
+where
+    DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
+    IC: marker::WithBatteryPower,
+{
+    /// Returns whether the primary power has failed.
+    pub fn has_power_failed(&mut self) -> Result<bool, Error<E>> {
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        Ok((data & BitFlags::PWRFAIL) != 0)
+    }
+
+    /// Clears the power failed status flag and power-fail time-stamp registers.
+    pub fn clear_power_failed(&mut self) -> Result<(), Error<E>> {
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        let data = data & !BitFlags::PWRFAIL;
+        self.iface.write_register(Register::WEEKDAY, data)
+    }
+
+    /// Returns date/time when the power failed went down (under Vtrip).
+    ///
+    /// Note that the registers need to be cleared by calling
+    /// [`clear_power_failed()`](#method.clear_power_failed)
+    pub fn get_power_down_datetime(&mut self) -> Result<PowerFailDateTime, Error<E>> {
+        self.get_power_fail(Register::PWRDNMIN)
+    }
+
+    /// Returns date/time when the power went back up (above Vtrip).
+    ///
+    /// Note that the registers need to be cleared by calling
+    /// [`clear_power_failed()`](#method.clear_power_failed)
+    pub fn get_power_up_datetime(&mut self) -> Result<PowerFailDateTime, Error<E>> {
+        self.get_power_fail(Register::PWRUPMIN)
+    }
+
+    fn get_power_fail(&mut self, starting_register: u8) -> Result<PowerFailDateTime, Error<E>> {
+        let mut data = [0; 4];
+        self.iface.read_data(starting_register, &mut data)?;
+        Ok(PowerFailDateTime {
+            minute: packed_bcd_to_decimal(data[0]),
+            hour: hours_from_register(data[1]),
+            day: packed_bcd_to_decimal(data[2]),
+            weekday: data[3] >> 5,
+            month: packed_bcd_to_decimal(data[3] & 0b0001_1111),
+        })
+    }
+
+    /// Enable usage of backup battery power.
+    ///
+    /// Note that this clears the power failed flag.
+    pub fn enable_backup_battery_power(&mut self) -> Result<(), Error<E>> {
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        let data = data | BitFlags::VBATEN;
+        self.iface.write_register(Register::WEEKDAY, data)?;
+        self.is_battery_power_enabled = true;
+        Ok(())
+    }
+
+    /// Disable usage of backup battery power (default).
+    ///
+    /// Note that this clears the power failed flag.
+    pub fn disable_backup_battery_power(&mut self) -> Result<(), Error<E>> {
+        let data = self.iface.read_register(Register::WEEKDAY)?;
+        let data = data & !BitFlags::VBATEN;
+        self.iface.write_register(Register::WEEKDAY, data)?;
+        self.is_battery_power_enabled = false;
+        Ok(())
+    }
+}
+
 mod private {
-    use super::interface;
+    use super::{ic, interface};
     pub trait Sealed {}
 
     impl<E> Sealed for interface::I2cInterface<E> {}
     impl<E> Sealed for dyn interface::ReadData<Error = E> {}
     impl<E> Sealed for dyn interface::WriteData<Error = E> {}
+    impl Sealed for ic::Mcp7940n {}
 }
