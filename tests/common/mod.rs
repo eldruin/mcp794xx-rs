@@ -56,12 +56,14 @@ pub fn destroy_mcp7940n(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7
     dev.destroy_mcp7940n().done();
 }
 
+#[allow(unused)]
 pub fn new_mcp7940m(
     transactions: &[I2cTrans],
 ) -> Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940m> {
     Mcp794xx::new_mcp7940m(I2cMock::new(&transactions))
 }
 
+#[allow(unused)]
 pub fn destroy_mcp7940m(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940m>) {
     dev.destroy_mcp7940m().done();
 }
