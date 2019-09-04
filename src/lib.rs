@@ -94,30 +94,35 @@ use interface::I2cInterface;
 mod battery_power;
 mod common;
 
-impl<I2C, E> Mcp794xx<I2cInterface<I2C>, ic::Mcp7940n>
-where
-    I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
-{
-    /// Create a new instance of the MCP7940N device.
-    pub fn new_mcp7940n(i2c: I2C) -> Self {
-        Mcp794xx {
-            iface: I2cInterface { i2c },
-            is_enabled: false,
-            is_battery_power_enabled: false,
-            is_running_in_24h_mode: false,
-            control: Config {
-                bits: BitFlags::OUT,
-            },
-            alarm_output_pin_polarity: AlarmOutputPinPolarity::Low,
-            _ic: PhantomData,
-        }
-    }
+macro_rules! create_destroy_i2c {
+    ($ic:ident, $create:ident, $destroy:ident) => {
+        impl<I2C, E> Mcp794xx<I2cInterface<I2C>, ic::$ic>
+        where
+            I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
+        {
+            /// Create a new instance of the device.
+            pub fn $create(i2c: I2C) -> Self {
+                Mcp794xx {
+                    iface: I2cInterface { i2c },
+                    is_enabled: false,
+                    is_battery_power_enabled: false,
+                    is_running_in_24h_mode: false,
+                    control: Config {
+                        bits: BitFlags::OUT,
+                    },
+                    alarm_output_pin_polarity: AlarmOutputPinPolarity::Low,
+                    _ic: PhantomData,
+                }
+            }
 
-    /// Destroy driver instance, return I²C bus instance.
-    pub fn destroy_mcp7940n(self) -> I2C {
-        self.iface.i2c
-    }
+            /// Destroy driver instance, return I²C bus instance.
+            pub fn $destroy(self) -> I2C {
+                self.iface.i2c
+            }
+        }
+    };
 }
+create_destroy_i2c!(Mcp7940n, new_mcp7940n, destroy_mcp7940n);
 
 mod private {
     use super::{ic, interface};
