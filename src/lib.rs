@@ -22,6 +22,8 @@ pub mod marker {
 pub mod ic {
     /// MCP7940N IC marker
     pub struct Mcp7940n(());
+    /// MCP7940M IC marker
+    pub struct Mcp7940m(());
 }
 
 impl marker::WithBatteryPower for ic::Mcp7940n {}
@@ -123,6 +125,7 @@ macro_rules! create_destroy_i2c {
     };
 }
 create_destroy_i2c!(Mcp7940n, new_mcp7940n, destroy_mcp7940n);
+create_destroy_i2c!(Mcp7940m, new_mcp7940m, destroy_mcp7940m);
 
 mod private {
     use super::{ic, interface};

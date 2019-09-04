@@ -56,6 +56,16 @@ pub fn destroy_mcp7940n(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7
     dev.destroy_mcp7940n().done();
 }
 
+pub fn new_mcp7940m(
+    transactions: &[I2cTrans],
+) -> Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940m> {
+    Mcp794xx::new_mcp7940m(I2cMock::new(&transactions))
+}
+
+pub fn destroy_mcp7940m(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940m>) {
+    dev.destroy_mcp7940m().done();
+}
+
 #[macro_export]
 macro_rules! get_test {
     ($name:ident, $create_method:ident, $destroy_method:ident,
@@ -122,6 +132,7 @@ macro_rules! for_all_ics {
         mod $name {
             use super::*;
             $macroname!(for_mcp7940n, new_mcp7940n, destroy_mcp7940n, $($args),*);
+            $macroname!(for_mcp7940m, new_mcp7940m, destroy_mcp7940m, $($args),*);
         }
     };
 }
