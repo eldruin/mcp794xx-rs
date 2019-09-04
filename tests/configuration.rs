@@ -21,16 +21,6 @@ macro_rules! call_update_method {
 
 call_update_method!(can_enable, enable, SECONDS, BitFlags::ST);
 call_update_method!(can_disable, disable, SECONDS, 0);
-call_update_method!(can_clear_pwr_fail, clear_power_failed, WEEKDAY, 0);
-
-call_update_method!(
-    can_enable_vbat,
-    enable_backup_battery_power,
-    WEEKDAY,
-    BitFlags::VBATEN
-);
-
-call_update_method!(can_disable_vbat, disable_backup_battery_power, WEEKDAY, 0);
 
 get_param_test!(
     osc_running,
@@ -45,21 +35,6 @@ get_param_test!(
     WEEKDAY,
     false,
     [!BitFlags::OSCRUN]
-);
-
-get_param_test!(
-    power_failed,
-    has_power_failed,
-    WEEKDAY,
-    true,
-    [BitFlags::PWRFAIL]
-);
-get_param_test!(
-    power_not_failed,
-    has_power_failed,
-    WEEKDAY,
-    false,
-    [!BitFlags::PWRFAIL]
 );
 
 #[macro_export]

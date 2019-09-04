@@ -127,6 +127,16 @@ macro_rules! for_all_ics {
 }
 
 #[macro_export]
+macro_rules! for_all_ics_with_bat_power {
+    ($name:ident, $macroname:ident, $( $args:tt ),*) => {
+        mod $name {
+            use super::*;
+            $macroname!(for_mcp7940n, new_mcp7940n, destroy_mcp7940n, $($args),*);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! get_param_test {
     ($name:ident, $method:ident, $register1:ident, $value:expr, [ $( $read_bin:expr ),+ ]) => {
         for_all_ics!(
