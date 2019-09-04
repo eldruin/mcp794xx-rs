@@ -48,6 +48,14 @@ pub trait ReadData {
     fn read_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error>;
 }
 
+/// Read current data
+pub trait ReadCurrent {
+    /// Error type
+    type Error;
+    /// Read
+    fn read(&mut self) -> Result<u8, Self::Error>;
+}
+
 impl<I2C, E> ReadData for I2cInterface<I2C>
 where
     I2C: blocking::i2c::WriteRead<Error = E>,
@@ -66,5 +74,20 @@ where
         self.i2c
             .write_read(DEVICE_ADDRESS, &[address], &mut payload[..])
             .map_err(Error::Comm)
+    }
+}
+
+impl<I2C, E> ReadCurrent for I2cInterface<I2C>
+where
+    I2C: blocking::i2c::Read<Error = E>,
+{
+    type Error = Error<E>;
+
+    fn read(&mut self) -> Result<u8, Self::Error> {
+        let mut data = [0];
+        self.i2c
+            .read(DEVICE_ADDRESS, &mut data)
+            .map_err(Error::Comm)
+            .and(Ok(data[0]))
     }
 }

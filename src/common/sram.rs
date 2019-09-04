@@ -55,3 +55,15 @@ where
         self.iface.write_data(&payload[..=data.len()])
     }
 }
+
+impl<DI, E, IC> Mcp794xx<DI, IC>
+where
+    DI: interface::ReadCurrent<Error = Error<E>>,
+{
+    /// Read a single byte from the current address.
+    ///
+    /// The current address corresponds to the last accessed address incremented by 1.
+    pub fn read_sram_current_byte(&mut self) -> Result<u8, Error<E>> {
+        self.iface.read()
+    }
+}

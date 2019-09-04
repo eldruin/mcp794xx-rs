@@ -19,6 +19,14 @@ for_all_ics!(
     0x20
 );
 
+for_all_ics!(
+    can_read_current_byte,
+    get_test,
+    read_sram_current_byte,
+    [I2cTrans::read(DEV_ADDR, vec![15])],
+    15
+);
+
 set_invalid_param_test!(write_sram_byte_too_small_address, write_sram_byte, 0x19, 0);
 set_invalid_param_test!(write_sram_byte_too_big_address, write_sram_byte, 0x60, 0);
 
