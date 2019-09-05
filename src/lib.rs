@@ -133,4 +133,5 @@ mod private {
 
     impl<E> Sealed for interface::I2cInterface<E> {}
     impl Sealed for ic::Mcp7940n {}
+    impl Sealed for ic::Mcp7940m {}
 }
