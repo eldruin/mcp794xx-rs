@@ -132,8 +132,5 @@ mod private {
     pub trait Sealed {}
 
     impl<E> Sealed for interface::I2cInterface<E> {}
-    impl<E> Sealed for dyn interface::ReadData<Error = E> {}
-    impl<E> Sealed for dyn interface::WriteData<Error = E> {}
-    impl<E> Sealed for dyn interface::ReadCurrent<Error = E> {}
     impl Sealed for ic::Mcp7940n {}
 }
