@@ -46,27 +46,22 @@ impl BitFlags {
     pub const ALMIF: u8 = 0b0000_1000;
 }
 
-pub fn new_mcp7940n(
-    transactions: &[I2cTrans],
-) -> Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940n> {
-    Mcp794xx::new_mcp7940n(I2cMock::new(&transactions))
+macro_rules! create_destroy_i2c {
+    ($ic:ident, $create:ident, $destroy:ident) => {
+        #[allow(unused)]
+        pub fn $create(
+            transactions: &[I2cTrans],
+        ) -> Mcp794xx<interface::I2cInterface<I2cMock>, ic::$ic> {
+            Mcp794xx::$create(I2cMock::new(&transactions))
+        }
+        #[allow(unused)]
+        pub fn $destroy(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::$ic>) {
+            dev.$destroy().done();
+        }
+    };
 }
-
-pub fn destroy_mcp7940n(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940n>) {
-    dev.destroy_mcp7940n().done();
-}
-
-#[allow(unused)]
-pub fn new_mcp7940m(
-    transactions: &[I2cTrans],
-) -> Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940m> {
-    Mcp794xx::new_mcp7940m(I2cMock::new(&transactions))
-}
-
-#[allow(unused)]
-pub fn destroy_mcp7940m(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::Mcp7940m>) {
-    dev.destroy_mcp7940m().done();
-}
+create_destroy_i2c!(Mcp7940n, new_mcp7940n, destroy_mcp7940n);
+create_destroy_i2c!(Mcp7940m, new_mcp7940m, destroy_mcp7940m);
 
 #[macro_export]
 macro_rules! get_test {
