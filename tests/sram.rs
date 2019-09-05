@@ -5,7 +5,8 @@ use mcp794xx::Error;
 mod common;
 use common::{
     destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp7940m, destroy_mcp7940n,
-    new_mcp79400, new_mcp79401, new_mcp79402, new_mcp7940m, new_mcp7940n,
+    destroy_mcp79410, destroy_mcp79411, destroy_mcp79412, new_mcp79400, new_mcp79401, new_mcp79402,
+    new_mcp7940m, new_mcp7940n, new_mcp79410, new_mcp79411, new_mcp79412,
     DEVICE_ADDRESS as DEV_ADDR,
 };
 

@@ -84,9 +84,9 @@ This driver is compatible with:
 - [X] MCP79400 - TODO: EEPROM
 - [X] MCP79401 - TODO: EEPROM
 - [X] MCP79402 - TODO: EEPROM
-- [ ] MCP79410
-- [ ] MCP79411
-- [ ] MCP79412
+- [X] MCP79410 - TODO: EEPROM
+- [X] MCP79411 - TODO: EEPROM
+- [X] MCP79412 - TODO: EEPROM
 
 ## Support
 
