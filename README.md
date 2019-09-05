@@ -81,9 +81,9 @@ This driver is compatible with:
 
 - [X] MCP7940N
 - [X] MCP7940M
-- [ ] MCP79400
-- [ ] MCP79401
-- [ ] MCP79402
+- [X] MCP79400 - TODO: EEPROM
+- [X] MCP79401 - TODO: EEPROM
+- [X] MCP79402 - TODO: EEPROM
 - [ ] MCP79410
 - [ ] MCP79411
 - [ ] MCP79412

@@ -4,7 +4,9 @@ extern crate mcp794xx;
 use mcp794xx::Error;
 mod common;
 use common::{
-    destroy_mcp7940m, destroy_mcp7940n, new_mcp7940m, new_mcp7940n, DEVICE_ADDRESS as DEV_ADDR,
+    destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp7940m, destroy_mcp7940n,
+    new_mcp79400, new_mcp79401, new_mcp79402, new_mcp7940m, new_mcp7940n,
+    DEVICE_ADDRESS as DEV_ADDR,
 };
 
 set_invalid_param_test!(read_sram_byte_too_small_address, read_sram_byte, 0x19);

@@ -24,9 +24,18 @@ pub mod ic {
     pub struct Mcp7940n(());
     /// MCP7940M IC marker
     pub struct Mcp7940m(());
+    /// MCP79400 IC marker
+    pub struct Mcp79400(());
+    /// MCP79401 IC marker
+    pub struct Mcp79401(());
+    /// MCP79402 IC marker
+    pub struct Mcp79402(());
 }
 
 impl marker::WithBatteryPower for ic::Mcp7940n {}
+impl marker::WithBatteryPower for ic::Mcp79400 {}
+impl marker::WithBatteryPower for ic::Mcp79401 {}
+impl marker::WithBatteryPower for ic::Mcp79402 {}
 
 mod types;
 pub use types::{
@@ -126,6 +135,9 @@ macro_rules! create_destroy_i2c {
 }
 create_destroy_i2c!(Mcp7940n, new_mcp7940n, destroy_mcp7940n);
 create_destroy_i2c!(Mcp7940m, new_mcp7940m, destroy_mcp7940m);
+create_destroy_i2c!(Mcp79400, new_mcp79400, destroy_mcp79400);
+create_destroy_i2c!(Mcp79401, new_mcp79401, destroy_mcp79401);
+create_destroy_i2c!(Mcp79402, new_mcp79402, destroy_mcp79402);
 
 mod private {
     use super::{ic, interface};
@@ -134,4 +146,7 @@ mod private {
     impl<E> Sealed for interface::I2cInterface<E> {}
     impl Sealed for ic::Mcp7940n {}
     impl Sealed for ic::Mcp7940m {}
+    impl Sealed for ic::Mcp79400 {}
+    impl Sealed for ic::Mcp79401 {}
+    impl Sealed for ic::Mcp79402 {}
 }

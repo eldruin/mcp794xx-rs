@@ -2,7 +2,8 @@ extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 mod common;
 use common::{
-    destroy_mcp7940m, destroy_mcp7940n, new_mcp7940m, new_mcp7940n, BitFlags, Register,
+    destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp7940m, destroy_mcp7940n,
+    new_mcp79400, new_mcp79401, new_mcp79402, new_mcp7940m, new_mcp7940n, BitFlags, Register,
     DEVICE_ADDRESS as DEV_ADDR,
 };
 extern crate mcp794xx;

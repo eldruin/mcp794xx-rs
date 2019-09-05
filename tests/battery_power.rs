@@ -3,7 +3,10 @@ use hal::i2c::Transaction as I2cTrans;
 extern crate mcp794xx;
 use mcp794xx::{Hours, PowerFailDateTime};
 mod common;
-use common::{destroy_mcp7940n, new_mcp7940n, BitFlags, Register, DEVICE_ADDRESS as DEV_ADDR};
+use common::{
+    destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp7940n, new_mcp79400,
+    new_mcp79401, new_mcp79402, new_mcp7940n, BitFlags, Register, DEVICE_ADDRESS as DEV_ADDR,
+};
 
 const PFDT: PowerFailDateTime = PowerFailDateTime {
     minute: 59,

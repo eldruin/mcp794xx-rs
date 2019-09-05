@@ -62,6 +62,9 @@ macro_rules! create_destroy_i2c {
 }
 create_destroy_i2c!(Mcp7940n, new_mcp7940n, destroy_mcp7940n);
 create_destroy_i2c!(Mcp7940m, new_mcp7940m, destroy_mcp7940m);
+create_destroy_i2c!(Mcp79400, new_mcp79400, destroy_mcp79400);
+create_destroy_i2c!(Mcp79401, new_mcp79401, destroy_mcp79401);
+create_destroy_i2c!(Mcp79402, new_mcp79402, destroy_mcp79402);
 
 #[macro_export]
 macro_rules! get_test {
@@ -130,6 +133,9 @@ macro_rules! for_all_ics {
             use super::*;
             $macroname!(for_mcp7940n, new_mcp7940n, destroy_mcp7940n, $($args),*);
             $macroname!(for_mcp7940m, new_mcp7940m, destroy_mcp7940m, $($args),*);
+            $macroname!(for_mcp79400, new_mcp79400, destroy_mcp79400, $($args),*);
+            $macroname!(for_mcp79401, new_mcp79401, destroy_mcp79401, $($args),*);
+            $macroname!(for_mcp79402, new_mcp79402, destroy_mcp79402, $($args),*);
         }
     };
 }
@@ -140,6 +146,9 @@ macro_rules! for_all_ics_with_bat_power {
         mod $name {
             use super::*;
             $macroname!(for_mcp7940n, new_mcp7940n, destroy_mcp7940n, $($args),*);
+            $macroname!(for_mcp79400, new_mcp79400, destroy_mcp79400, $($args),*);
+            $macroname!(for_mcp79401, new_mcp79401, destroy_mcp79401, $($args),*);
+            $macroname!(for_mcp79402, new_mcp79402, destroy_mcp79402, $($args),*);
         }
     };
 }
