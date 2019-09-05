@@ -8,6 +8,54 @@ pub struct I2cInterface<I2C> {
     pub(crate) i2c: I2C,
 }
 
+impl<I2C, E> I2cInterface<I2C>
+where
+    I2C: blocking::i2c::WriteRead<Error = E>,
+{
+    fn read_byte(&mut self, device_address: u8, address: u8) -> Result<u8, Error<E>> {
+        let mut data = [0];
+        self.i2c
+            .write_read(device_address, &[address], &mut data)
+            .map_err(Error::Comm)
+            .and(Ok(data[0]))
+    }
+
+    fn read_data(
+        &mut self,
+        device_address: u8,
+        address: u8,
+        payload: &mut [u8],
+    ) -> Result<(), Error<E>> {
+        self.i2c
+            .write_read(device_address, &[address], &mut payload[..])
+            .map_err(Error::Comm)
+    }
+}
+
+impl<I2C, E> I2cInterface<I2C>
+where
+    I2C: blocking::i2c::Write<Error = E>,
+{
+    fn write_data(&mut self, device_address: u8, payload: &[u8]) -> Result<(), Error<E>> {
+        self.i2c
+            .write(device_address, &payload)
+            .map_err(Error::Comm)
+    }
+}
+
+impl<I2C, E> I2cInterface<I2C>
+where
+    I2C: blocking::i2c::Read<Error = E>,
+{
+    fn read(&mut self, device_address: u8) -> Result<u8, Error<E>> {
+        let mut data = [0];
+        self.i2c
+            .read(device_address, &mut data)
+            .map_err(Error::Comm)
+            .and(Ok(data[0]))
+    }
+}
+
 /// Write data
 pub trait WriteData: private::Sealed {
     /// Error type
@@ -25,16 +73,11 @@ where
     type Error = Error<E>;
 
     fn write_register(&mut self, register: u8, data: u8) -> Result<(), Self::Error> {
-        let payload: [u8; 2] = [register, data];
-        self.i2c
-            .write(DEVICE_ADDRESS, &payload)
-            .map_err(Error::Comm)
+        self.write_data(DEVICE_ADDRESS, &[register, data])
     }
 
     fn write_data(&mut self, payload: &[u8]) -> Result<(), Self::Error> {
-        self.i2c
-            .write(DEVICE_ADDRESS, &payload)
-            .map_err(Error::Comm)
+        self.write_data(DEVICE_ADDRESS, &payload)
     }
 }
 
@@ -63,17 +106,11 @@ where
     type Error = Error<E>;
 
     fn read_register(&mut self, register: u8) -> Result<u8, Self::Error> {
-        let mut data = [0];
-        self.i2c
-            .write_read(DEVICE_ADDRESS, &[register], &mut data)
-            .map_err(Error::Comm)
-            .and(Ok(data[0]))
+        self.read_byte(DEVICE_ADDRESS, register)
     }
 
     fn read_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error> {
-        self.i2c
-            .write_read(DEVICE_ADDRESS, &[address], &mut payload[..])
-            .map_err(Error::Comm)
+        self.read_data(DEVICE_ADDRESS, address, &mut payload[..])
     }
 }
 
@@ -84,10 +121,6 @@ where
     type Error = Error<E>;
 
     fn read(&mut self) -> Result<u8, Self::Error> {
-        let mut data = [0];
-        self.i2c
-            .read(DEVICE_ADDRESS, &mut data)
-            .map_err(Error::Comm)
-            .and(Ok(data[0]))
+        self.read(DEVICE_ADDRESS)
     }
 }
