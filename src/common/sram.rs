@@ -63,7 +63,7 @@ where
     /// Read a single byte from the current address.
     ///
     /// The current address corresponds to the last accessed address
-    /// (including addresses in EEPROM) incremented by 1.
+    /// (including addresses accessed in EEPROM) incremented by 1.
     pub fn read_sram_current_byte(&mut self) -> Result<u8, Error<E>> {
         self.iface.read()
     }
