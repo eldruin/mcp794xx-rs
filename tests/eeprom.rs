@@ -9,18 +9,17 @@ use common::{
     new_mcp79412, EEPROM_ADDRESS,
 };
 
-for_all_ics_with_protected_eeprom!(
-    read_eeprom_byte_too_small_address,
-    set_invalid_test,
-    read_eeprom_byte,
-    0xEF
-);
-for_all_ics_with_protected_eeprom!(
-    read_eeprom_byte_too_big_address,
-    set_invalid_test,
-    read_eeprom_byte,
-    0xF8
-);
+macro_rules! set_invalid_eeprom_test {
+    ($name:ident, $method:ident $(, $value:expr)*) => {
+        mod $name {
+            use super::*;
+            for_all_ics_with_protected_eeprom!(cannot_set_invalid, set_invalid_test, $method, $($value),*);
+        }
+    };
+}
+
+set_invalid_eeprom_test!(read_eeprom_byte_too_small_address, read_eeprom_byte, 0xEF);
+set_invalid_eeprom_test!(read_eeprom_byte_too_big_address, read_eeprom_byte, 0xF8);
 
 for_all_ics_with_protected_eeprom!(
     can_read_byte,
