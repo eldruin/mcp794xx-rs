@@ -30,3 +30,11 @@ for_all_ics_with_protected_eeprom!(
     15,
     0xF0
 );
+
+for_all_ics_with_protected_eeprom!(
+    can_read_current_byte,
+    get_test,
+    read_eeprom_current_byte,
+    [I2cTrans::read(EEPROM_ADDRESS, vec![15])],
+    15
+);

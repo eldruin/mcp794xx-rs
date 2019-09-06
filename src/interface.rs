@@ -97,8 +97,10 @@ pub trait ReadData: private::Sealed {
 pub trait ReadCurrent: private::Sealed {
     /// Error type
     type Error;
-    /// Read
+    /// Read current address
     fn read(&mut self) -> Result<u8, Self::Error>;
+    /// Read current address from EEPROM
+    fn read_eeprom(&mut self) -> Result<u8, Self::Error>;
 }
 
 impl<I2C, E> ReadData for I2cInterface<I2C>
@@ -128,5 +130,9 @@ where
 
     fn read(&mut self) -> Result<u8, Self::Error> {
         self.read(DEVICE_ADDRESS)
+    }
+
+    fn read_eeprom(&mut self) -> Result<u8, Self::Error> {
+        self.read(EEPROM_ADDRESS)
     }
 }
