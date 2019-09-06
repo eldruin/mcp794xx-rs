@@ -16,6 +16,8 @@ pub mod marker {
     use super::private;
     /// Supports backup battery power
     pub trait WithBatteryPower: private::Sealed {}
+    /// supports protected EEPROM
+    pub trait WithProtectedEeprom: private::Sealed {}
 }
 
 /// IC markers
@@ -45,6 +47,12 @@ impl marker::WithBatteryPower for ic::Mcp79402 {}
 impl marker::WithBatteryPower for ic::Mcp79410 {}
 impl marker::WithBatteryPower for ic::Mcp79411 {}
 impl marker::WithBatteryPower for ic::Mcp79412 {}
+impl marker::WithProtectedEeprom for ic::Mcp79400 {}
+impl marker::WithProtectedEeprom for ic::Mcp79401 {}
+impl marker::WithProtectedEeprom for ic::Mcp79402 {}
+impl marker::WithProtectedEeprom for ic::Mcp79410 {}
+impl marker::WithProtectedEeprom for ic::Mcp79411 {}
+impl marker::WithProtectedEeprom for ic::Mcp79412 {}
 
 mod types;
 pub use types::{
@@ -53,6 +61,7 @@ pub use types::{
 };
 
 const DEVICE_ADDRESS: u8 = 0b110_1111;
+const EEPROM_ADDRESS: u8 = 0b101_0111;
 
 struct Register;
 impl Register {
@@ -113,6 +122,7 @@ pub mod interface;
 use interface::I2cInterface;
 mod battery_power;
 mod common;
+mod eeprom;
 
 macro_rules! create_destroy_i2c {
     ($ic:ident, $create:ident, $destroy:ident) => {

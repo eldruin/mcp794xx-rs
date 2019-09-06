@@ -6,8 +6,10 @@ use self::hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 
 #[allow(unused)]
 pub const DEVICE_ADDRESS: u8 = 0b1101111;
-pub struct Register;
+#[allow(unused)]
+pub const EEPROM_ADDRESS: u8 = 0b1010111;
 
+pub struct Register;
 #[allow(unused)]
 impl Register {
     pub const SECONDS: u8 = 0x00;
@@ -28,7 +30,6 @@ impl Register {
 }
 
 pub struct BitFlags;
-
 #[allow(unused)]
 impl BitFlags {
     pub const ST: u8 = 0b1000_0000;
@@ -152,6 +153,21 @@ macro_rules! for_all_ics_with_bat_power {
         mod $name {
             use super::*;
             $macroname!(for_mcp7940n, new_mcp7940n, destroy_mcp7940n, $($args),*);
+            $macroname!(for_mcp79400, new_mcp79400, destroy_mcp79400, $($args),*);
+            $macroname!(for_mcp79401, new_mcp79401, destroy_mcp79401, $($args),*);
+            $macroname!(for_mcp79402, new_mcp79402, destroy_mcp79402, $($args),*);
+            $macroname!(for_mcp79410, new_mcp79410, destroy_mcp79410, $($args),*);
+            $macroname!(for_mcp79411, new_mcp79411, destroy_mcp79411, $($args),*);
+            $macroname!(for_mcp79412, new_mcp79412, destroy_mcp79412, $($args),*);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! for_all_ics_with_protected_eeprom {
+    ($name:ident, $macroname:ident, $( $args:tt ),*) => {
+        mod $name {
+            use super::*;
             $macroname!(for_mcp79400, new_mcp79400, destroy_mcp79400, $($args),*);
             $macroname!(for_mcp79401, new_mcp79401, destroy_mcp79401, $($args),*);
             $macroname!(for_mcp79402, new_mcp79402, destroy_mcp79402, $($args),*);

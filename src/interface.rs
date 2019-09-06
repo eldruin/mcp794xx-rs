@@ -1,5 +1,5 @@
 //! Communication interface
-use super::{private, Error, DEVICE_ADDRESS};
+use super::{private, Error, DEVICE_ADDRESS, EEPROM_ADDRESS};
 use hal::blocking;
 
 /// I2C interface
@@ -89,6 +89,8 @@ pub trait ReadData: private::Sealed {
     fn read_register(&mut self, register: u8) -> Result<u8, Self::Error>;
     /// Read some data.
     fn read_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error>;
+    /// Read byte from EEPROM
+    fn read_eeprom_byte(&mut self, address: u8) -> Result<u8, Self::Error>;
 }
 
 /// Read current data
@@ -111,6 +113,10 @@ where
 
     fn read_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error> {
         self.read_data(DEVICE_ADDRESS, address, &mut payload[..])
+    }
+
+    fn read_eeprom_byte(&mut self, register: u8) -> Result<u8, Self::Error> {
+        self.read_byte(EEPROM_ADDRESS, register)
     }
 }
 
