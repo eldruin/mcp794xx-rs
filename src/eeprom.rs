@@ -1,5 +1,6 @@
 //! EEPROM methods
 use {interface, marker, Error, Mcp794xx};
+const EEUNLOCK: u8 = 0b0000_1001;
 
 impl<DI, E, IC> Mcp794xx<DI, IC>
 where
@@ -25,6 +26,19 @@ where
             return Err(Error::InvalidInputData);
         }
         self.iface.read_eeprom_data(address, data)
+    }
+
+    /// Unlock EEPROM and write a single byte to an address.
+    ///
+    /// Valid addresses are from 0xF0 to 0xF7. Otherwise an
+    /// Error::InvalidInputData will be returned.
+    pub fn write_eeprom_byte(&mut self, address: u8, data: u8) -> Result<(), Error<E>> {
+        if address < 0xF0 || address > 0xF7 {
+            return Err(Error::InvalidInputData);
+        }
+        self.iface.write_register(EEUNLOCK, 0x55)?;
+        self.iface.write_register(EEUNLOCK, 0xAA)?;
+        self.iface.write_eeprom_byte(address, data)
     }
 }
 

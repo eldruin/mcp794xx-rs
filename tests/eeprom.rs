@@ -6,8 +6,9 @@ mod common;
 use common::{
     destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp79410, destroy_mcp79411,
     destroy_mcp79412, new_mcp79400, new_mcp79401, new_mcp79402, new_mcp79410, new_mcp79411,
-    new_mcp79412, EEPROM_ADDRESS,
+    new_mcp79412, DEVICE_ADDRESS as DEV_ADDR, EEPROM_ADDRESS,
 };
+const EEUNLOCK: u8 = 0b0000_1001;
 
 macro_rules! set_invalid_eeprom_test {
     ($name:ident, $method:ident $(, $value:expr)*) => {
@@ -71,4 +72,20 @@ for_all_ics_with_protected_eeprom!(
     0xF0,
     [1, 2, 3, 4, 5],
     [1, 2, 3, 4, 5]
+);
+
+set_invalid_eeprom_test!(write_byte_too_small_address, write_eeprom_byte, 0xEF, 0);
+set_invalid_eeprom_test!(write_byte_too_big_address, write_eeprom_byte, 0xF8, 0);
+
+for_all_ics_with_protected_eeprom!(
+    can_write_byte,
+    call_test,
+    write_eeprom_byte,
+    [
+        I2cTrans::write(DEV_ADDR, vec![EEUNLOCK, 0x55]),
+        I2cTrans::write(DEV_ADDR, vec![EEUNLOCK, 0xAA]),
+        I2cTrans::write(EEPROM_ADDRESS, vec![0xF0, 15])
+    ],
+    0xF0,
+    15
 );

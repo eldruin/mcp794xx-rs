@@ -64,6 +64,8 @@ pub trait WriteData: private::Sealed {
     fn write_register(&mut self, register: u8, data: u8) -> Result<(), Self::Error>;
     /// Write data. The first element corresponds to the starting address.
     fn write_data(&mut self, payload: &[u8]) -> Result<(), Self::Error>;
+    /// Write to EEPROM
+    fn write_eeprom_byte(&mut self, address: u8, data: u8) -> Result<(), Self::Error>;
 }
 
 impl<I2C, E> WriteData for I2cInterface<I2C>
@@ -78,6 +80,10 @@ where
 
     fn write_data(&mut self, payload: &[u8]) -> Result<(), Self::Error> {
         self.write_data(DEVICE_ADDRESS, &payload)
+    }
+
+    fn write_eeprom_byte(&mut self, address: u8, data: u8) -> Result<(), Self::Error> {
+        self.write_data(EEPROM_ADDRESS, &[address, data])
     }
 }
 
