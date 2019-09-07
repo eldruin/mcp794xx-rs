@@ -49,7 +49,7 @@ where
         {
             return Err(Error::InvalidInputData);
         }
-        let mut payload = [0; 64]; // max size
+        let mut payload = [0; 65]; // max size
         payload[0] = address;
         payload[1..=data.len()].copy_from_slice(&data);
         self.iface.write_data(&payload[..=data.len()])
