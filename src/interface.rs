@@ -91,6 +91,8 @@ pub trait ReadData: private::Sealed {
     fn read_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error>;
     /// Read byte from EEPROM
     fn read_eeprom_byte(&mut self, address: u8) -> Result<u8, Self::Error>;
+    /// Read some data from EEPROM.
+    fn read_eeprom_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error>;
 }
 
 /// Read current data
@@ -119,6 +121,10 @@ where
 
     fn read_eeprom_byte(&mut self, register: u8) -> Result<u8, Self::Error> {
         self.read_byte(EEPROM_ADDRESS, register)
+    }
+
+    fn read_eeprom_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error> {
+        self.read_data(EEPROM_ADDRESS, address, &mut payload[..])
     }
 }
 

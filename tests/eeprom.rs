@@ -37,3 +37,38 @@ for_all_ics_with_protected_eeprom!(
     [I2cTrans::read(EEPROM_ADDRESS, vec![15])],
     15
 );
+
+set_invalid_eeprom_test!(read_data_too_sml_addr, read_eeprom_data, 0xEF, &mut [0]);
+set_invalid_eeprom_test!(read_data_too_big_addr, read_eeprom_data, 0xF8, &mut [0]);
+set_invalid_eeprom_test!(read_data_too_much1, read_eeprom_data, 0xF7, &mut [0; 2]);
+set_invalid_eeprom_test!(read_data_too_much2, read_eeprom_data, 0xF0, &mut [0; 9]);
+
+#[macro_export]
+macro_rules! read_data_test {
+    ($name:ident, $create_method:ident, $destroy_method:ident,
+    $method:ident, $transactions:expr, $addr:expr, $value:expr, $expected:expr) => {
+        #[test]
+        fn $name() {
+            let trans = $transactions;
+            let mut dev = $create_method(&trans);
+            let mut data = [0; 5];
+            dev.$method($addr, &mut data).unwrap();
+            assert_eq!($expected, data);
+            $destroy_method(dev);
+        }
+    };
+}
+
+for_all_ics_with_protected_eeprom!(
+    can_read_data,
+    read_data_test,
+    read_eeprom_data,
+    [I2cTrans::write_read(
+        EEPROM_ADDRESS,
+        vec![0xF0],
+        vec![1, 2, 3, 4, 5]
+    )],
+    0xF0,
+    [1, 2, 3, 4, 5],
+    [1, 2, 3, 4, 5]
+);

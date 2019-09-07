@@ -16,6 +16,16 @@ where
         }
         self.iface.read_eeprom_byte(address)
     }
+
+    /// Read EEPROM starting in an address as many bytes as necessary to fill
+    /// the data array provided.
+    pub fn read_eeprom_data(&mut self, address: u8, data: &mut [u8]) -> Result<(), Error<E>> {
+        if address < 0xF0 || address > 0xF7 || data.len() > 8 || (data.len() as u8 + address) > 0xF8
+        {
+            return Err(Error::InvalidInputData);
+        }
+        self.iface.read_eeprom_data(address, data)
+    }
 }
 
 impl<DI, E, IC> Mcp794xx<DI, IC>
