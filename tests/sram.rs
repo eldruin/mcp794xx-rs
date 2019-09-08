@@ -50,7 +50,7 @@ set_invalid_param_test!(read_sram_data_too_much2, read_sram_data, 0x20, &mut [0;
 #[macro_export]
 macro_rules! read_data_test {
     ($name:ident, $create_method:ident, $destroy_method:ident,
-    $method:ident, $transactions:expr, $addr:expr, $value:expr, $expected:expr) => {
+    $method:ident, $transactions:expr, $addr:expr, $expected:expr) => {
         #[test]
         fn $name() {
             let trans = $transactions;
@@ -73,7 +73,6 @@ for_all_ics!(
         vec![1, 2, 3, 4, 5]
     )],
     0x20,
-    [1, 2, 3, 4, 5],
     [1, 2, 3, 4, 5]
 );
 

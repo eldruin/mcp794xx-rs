@@ -47,7 +47,7 @@ set_invalid_eeprom_test!(read_data_too_much2, read_eeprom_data, 0xF0, &mut [0; 9
 #[macro_export]
 macro_rules! read_data_test {
     ($name:ident, $create_method:ident, $destroy_method:ident,
-    $method:ident, $transactions:expr, $addr:expr, $value:expr, $expected:expr) => {
+    $method:ident, $transactions:expr, $addr:expr, $expected:expr) => {
         #[test]
         fn $name() {
             let trans = $transactions;
@@ -70,7 +70,6 @@ for_all_ics_with_protected_eeprom!(
         vec![1, 2, 3, 4, 5]
     )],
     0xF0,
-    [1, 2, 3, 4, 5],
     [1, 2, 3, 4, 5]
 );
 
