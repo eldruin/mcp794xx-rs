@@ -40,6 +40,20 @@ where
         self.iface.write_register(EEUNLOCK, 0xAA)?;
         self.iface.write_eeprom_byte(address, data)
     }
+
+    /// Unlock EEPROM and write data array starting in an address.
+    pub fn write_eeprom_data(&mut self, address: u8, data: &[u8]) -> Result<(), Error<E>> {
+        if address < 0xF0 || address > 0xF7 || data.len() > 8 || (data.len() as u8 + address) > 0xF8
+        {
+            return Err(Error::InvalidInputData);
+        }
+        let mut payload = [0; 9]; // max size
+        payload[0] = address;
+        payload[1..=data.len()].copy_from_slice(&data);
+        self.iface.write_register(EEUNLOCK, 0x55)?;
+        self.iface.write_register(EEUNLOCK, 0xAA)?;
+        self.iface.write_eeprom_data(&payload[..=data.len()])
+    }
 }
 
 impl<DI, E, IC> Mcp794xx<DI, IC>

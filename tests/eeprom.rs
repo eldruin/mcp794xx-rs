@@ -89,3 +89,35 @@ for_all_ics_with_protected_eeprom!(
     0xF0,
     15
 );
+
+set_invalid_eeprom_test!(write_data_too_sml_addr, write_eeprom_data, 0xEF, &[0]);
+set_invalid_eeprom_test!(write_data_too_big_addr, write_eeprom_data, 0xF8, &[0]);
+set_invalid_eeprom_test!(write_data_too_much1, write_eeprom_data, 0xF7, &[0; 2]);
+set_invalid_eeprom_test!(write_data_too_much2, write_eeprom_data, 0xF0, &[0; 9]);
+
+#[macro_export]
+macro_rules! write_data_test {
+    ($name:ident, $create_method:ident, $destroy_method:ident,
+    $method:ident, $transactions:expr, $addr:expr, $value:expr) => {
+        #[test]
+        fn $name() {
+            let trans = $transactions;
+            let mut dev = $create_method(&trans);
+            dev.$method($addr, &$value).unwrap();
+            $destroy_method(dev);
+        }
+    };
+}
+
+for_all_ics_with_protected_eeprom!(
+    can_write_data,
+    write_data_test,
+    write_eeprom_data,
+    [
+        I2cTrans::write(DEV_ADDR, vec![EEUNLOCK, 0x55]),
+        I2cTrans::write(DEV_ADDR, vec![EEUNLOCK, 0xAA]),
+        I2cTrans::write(EEPROM_ADDRESS, vec![0xF0, 1, 2, 3, 4, 5])
+    ],
+    0xF0,
+    [1, 2, 3, 4, 5]
+);
