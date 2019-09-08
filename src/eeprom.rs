@@ -71,7 +71,7 @@ where
 
 impl<DI, E, IC> Mcp794xx<DI, IC>
 where
-    DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
+    DI: interface::ReadData<Error = Error<E>>,
     IC: marker::WithEui48,
 {
     /// Read pre-programmed EUI-48 node address from EEPROM.
