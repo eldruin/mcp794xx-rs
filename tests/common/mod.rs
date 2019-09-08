@@ -179,6 +179,17 @@ macro_rules! for_all_ics_with_protected_eeprom {
 }
 
 #[macro_export]
+macro_rules! for_all_ics_with_eui48 {
+    ($name:ident, $macroname:ident, $( $args:tt ),*) => {
+        mod $name {
+            use super::*;
+            $macroname!(for_mcp79401, new_mcp79401, destroy_mcp79401, $($args),*);
+            $macroname!(for_mcp79411, new_mcp79411, destroy_mcp79411, $($args),*);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! get_param_test {
     ($name:ident, $method:ident, $register1:ident, $value:expr, [ $( $read_bin:expr ),+ ]) => {
         for_all_ics!(
