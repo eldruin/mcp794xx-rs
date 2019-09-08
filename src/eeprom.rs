@@ -80,3 +80,15 @@ where
         self.iface.read_eeprom_data(0xF2, &mut data).and(Ok(data))
     }
 }
+
+impl<DI, E, IC> Mcp794xx<DI, IC>
+where
+    DI: interface::ReadData<Error = Error<E>>,
+    IC: marker::WithEui64,
+{
+    /// Read pre-programmed EUI-64 node address from EEPROM.
+    pub fn read_eui64(&mut self) -> Result<[u8; 8], Error<E>> {
+        let mut data = [0; 8];
+        self.iface.read_eeprom_data(0xF0, &mut data).and(Ok(data))
+    }
+}

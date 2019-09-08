@@ -20,6 +20,8 @@ pub mod marker {
     pub trait WithProtectedEeprom: private::Sealed {}
     /// Contains EUI-48
     pub trait WithEui48: private::Sealed {}
+    /// Contains EUI-64
+    pub trait WithEui64: private::Sealed {}
 }
 
 /// IC markers
@@ -57,6 +59,8 @@ impl marker::WithProtectedEeprom for ic::Mcp79411 {}
 impl marker::WithProtectedEeprom for ic::Mcp79412 {}
 impl marker::WithEui48 for ic::Mcp79401 {}
 impl marker::WithEui48 for ic::Mcp79411 {}
+impl marker::WithEui64 for ic::Mcp79402 {}
+impl marker::WithEui64 for ic::Mcp79412 {}
 
 mod types;
 pub use types::{

@@ -85,6 +85,18 @@ for_all_ics_with_eui48!(
     [1, 2, 3, 4, 5, 6]
 );
 
+for_all_ics_with_eui64!(
+    can_read_eui64,
+    get_test,
+    read_eui64,
+    [I2cTrans::write_read(
+        EEPROM_ADDRESS,
+        vec![0xF0],
+        vec![1, 2, 3, 4, 5, 6, 7, 8]
+    )],
+    [1, 2, 3, 4, 5, 6, 7, 8]
+);
+
 set_invalid_eeprom_test!(write_byte_too_small_address, write_eeprom_byte, 0xEF, 0);
 set_invalid_eeprom_test!(write_byte_too_big_address, write_eeprom_byte, 0xF8, 0);
 

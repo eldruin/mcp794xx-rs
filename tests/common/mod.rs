@@ -190,6 +190,17 @@ macro_rules! for_all_ics_with_eui48 {
 }
 
 #[macro_export]
+macro_rules! for_all_ics_with_eui64 {
+    ($name:ident, $macroname:ident, $( $args:tt ),*) => {
+        mod $name {
+            use super::*;
+            $macroname!(for_mcp79402, new_mcp79402, destroy_mcp79402, $($args),*);
+            $macroname!(for_mcp79412, new_mcp79412, destroy_mcp79412, $($args),*);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! get_param_test {
     ($name:ident, $method:ident, $register1:ident, $value:expr, [ $( $read_bin:expr ),+ ]) => {
         for_all_ics!(
