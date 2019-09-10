@@ -1,7 +1,7 @@
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate mcp794xx;
-use mcp794xx::Error;
+use mcp794xx::{EepromWriteProtection, Error};
 mod common;
 use common::{
     destroy_mcp79410, destroy_mcp79411, destroy_mcp79412, new_mcp79410, new_mcp79411, new_mcp79412,
@@ -110,3 +110,50 @@ for_all_ics_with_eeprom!(
     0x00,
     [1, 2, 3, 4, 5]
 );
+
+mod write_protection {
+    use super::*;
+    const EEPROM_STATUS: u8 = 0xFF;
+    const NONE: EepromWriteProtection = EepromWriteProtection::None;
+    const UPPERQUARTER: EepromWriteProtection = EepromWriteProtection::UpperQuarter;
+    const UPPERHALF: EepromWriteProtection = EepromWriteProtection::UpperHalf;
+    const ALL: EepromWriteProtection = EepromWriteProtection::All;
+
+    for_all_ics_with_eeprom!(
+        can_set_protection_none,
+        call_test,
+        set_eeprom_write_protection,
+        [I2cTrans::write(EEPROM_ADDRESS, vec![EEPROM_STATUS, 0])],
+        NONE
+    );
+    for_all_ics_with_eeprom!(
+        can_set_protection_upper_quarter,
+        call_test,
+        set_eeprom_write_protection,
+        [I2cTrans::write(
+            EEPROM_ADDRESS,
+            vec![EEPROM_STATUS, 0b0000_0100]
+        )],
+        UPPERQUARTER
+    );
+    for_all_ics_with_eeprom!(
+        can_set_protection_upper_half,
+        call_test,
+        set_eeprom_write_protection,
+        [I2cTrans::write(
+            EEPROM_ADDRESS,
+            vec![EEPROM_STATUS, 0b0000_1000]
+        )],
+        UPPERHALF
+    );
+    for_all_ics_with_eeprom!(
+        can_set_protection_all,
+        call_test,
+        set_eeprom_write_protection,
+        [I2cTrans::write(
+            EEPROM_ADDRESS,
+            vec![EEPROM_STATUS, 0b0000_1100]
+        )],
+        ALL
+    );
+}

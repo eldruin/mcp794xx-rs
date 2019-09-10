@@ -98,3 +98,16 @@ pub struct PowerFailDateTime {
     /// Minute [0-59]
     pub minute: u8,
 }
+
+/// EEPROM block write protection
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum EepromWriteProtection {
+    /// None of the addresses is write-protected (default)
+    None,
+    /// Upper 1/4 of the addresses are write-protected: `[0x60-0x7F]`
+    UpperQuarter,
+    /// Upper 1/2 of the addresses are write-protected: `[0x40-0x7F]`
+    UpperHalf,
+    /// All of the addresses are write-protected: `[0x00-0x7F]`
+    All,
+}

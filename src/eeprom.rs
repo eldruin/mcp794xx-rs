@@ -1,6 +1,7 @@
 //! EEPROM methods
-use {interface, marker, Error, Mcp794xx};
+use {interface, marker, EepromWriteProtection, Error, Mcp794xx};
 const EEUNLOCK: u8 = 0b0000_1001;
+const EEPROM_STATUS: u8 = 0xFF;
 
 impl<DI, E, IC> Mcp794xx<DI, IC>
 where
@@ -85,6 +86,20 @@ where
     DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
     IC: marker::WithEeprom,
 {
+    /// Set the EEPROM block write protection
+    pub fn set_eeprom_write_protection(
+        &mut self,
+        protection: EepromWriteProtection,
+    ) -> Result<(), Error<E>> {
+        let value = match protection {
+            EepromWriteProtection::None => 0,
+            EepromWriteProtection::UpperQuarter => 0b0000_0100,
+            EepromWriteProtection::UpperHalf => 0b0000_1000,
+            EepromWriteProtection::All => 0b0000_1100,
+        };
+        self.iface.write_eeprom_byte(EEPROM_STATUS, value)
+    }
+
     /// Read a single byte from an address in EEPROM.
     ///
     /// Valid addresses are in the range `[0x00-0x7F]`.

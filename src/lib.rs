@@ -69,8 +69,8 @@ impl marker::WithEeprom for ic::Mcp79412 {}
 
 mod types;
 pub use types::{
-    Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity, Error, OutputPinLevel,
-    PowerFailDateTime, SqWFreq,
+    Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity, EepromWriteProtection, Error,
+    OutputPinLevel, PowerFailDateTime, SqWFreq,
 };
 
 const DEVICE_ADDRESS: u8 = 0b110_1111;
