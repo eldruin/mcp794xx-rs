@@ -2,6 +2,78 @@
 //! / calendar family, based on the [`embedded-hal`] traits.
 //!
 //! [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
+//!
+//! This driver allows you to:
+//! - Read and set date and time in 12-hour and 24-hour format. See: [`get_datetime()`].
+//! - Read and set date and time individual elements. For example, see: [`get_year()`].
+//! - Enable and disable the real-time clock. See: [`enable()`].
+//! - Read whether the oscillator is running. See: [`is_oscillator_running()`].
+//! - Read whether the current year is a leap year. See: [`is_leap_year()`].
+//! - Enable and disable the usage of an external oscillator source. See: [`enable_external_oscillator()`].
+//! - Set the output pin logic level. See: [`set_output_pin()`].
+//! - Enable and disable coarse trim. See: [`enable_coarse_trim()`].
+//! - Set trimming value. See: [`set_trimming()`].
+//! - Power:
+//!     - Read whether the power has failed. See: [`has_power_failed()`].
+//!     - Clear the has-power-failed flag. See: [`clear_power_failed()`].
+//!     - Read the date/time when power went down. See: [`get_power_down_datetime()`].
+//!     - Read the date/time when power went back up. See: [`get_power_up_datetime()`].
+//!     - Enable and disable usage of backup battery power. See: [`enable_backup_battery_power()`].
+//! - SRAM:
+//!     - Read and write byte to SRAM. See: [`read_sram_byte()`].
+//!     - Read and write byte array to SRAM. See: [`read_sram_data()`].
+//!     - Read current position from SRAM. See: [`read_sram_current_byte()`].
+//! - Alarms:
+//!     - Enable and disable alarms. See: [`enable_alarm()`].
+//!     - Set alarms with several matching policies and output pin polarities. See: [`set_alarm()`].
+//!     - Read whether alarms have matched. See: [`has_alarm_matched()`].
+//!     - Clear flag indicating that alarms have matched. See: [`clear_alarm_matched_flag()`].
+//! - Wave generation:
+//!     - Enable and disable the square-wave generation. See: [`enable_square_wave()`].
+//!     - Select the square-wave frequency. See: [`set_square_wave_frequency()`].
+//! - Protected EEPROM:
+//!     - Read and write byte to the protected EEPROM. See: [`read_protected_eeprom_byte()`].
+//!     - Read and write byte array to the protected EEPROM. See: [`read_protected_eeprom_data()`].
+//!     - Read EUI-48. See: [`read_eui48()`].
+//!     - Read EUI-64. See: [`read_eui64()`].
+//! - EEPROM:
+//!     - Read and write byte to the EEPROM. See: [`read_eeprom_byte()`].
+//!     - Read and write byte array to the EEPROM. See: [`read_eeprom_data()`].
+//!     - Set EEPROM block write protection. See: [`set_eeprom_write_protection()`].
+//!     - Read current position from the EEPROM. See: [`read_eeprom_current_byte()`].
+//!
+//! [`get_datetime()`]: struct.Mcp794xx.html#method.get_datetime
+//! [`get_year()`]: struct.Mcp794xx.html#method.get_year
+//! [`enable()`]: struct.Mcp794xx.html#method.enable
+//! [`is_oscillator_running()`]: struct.Mcp794xx.html#method.is_oscillator_running
+//! [`is_leap_year()`]: struct.Mcp794xx.html#method.is_leap_year
+//! [`enable_external_oscillator()`]: struct.Mcp794xx.html#method.enable_external_oscillator
+//! [`set_output_pin()`]: struct.Mcp794xx.html#method.set_output_pin
+//! [`enable_coarse_trim()`]: struct.Mcp794xx.html#method.enable_coarse_trim
+//! [`set_trimming()`]: struct.Mcp794xx.html#method.set_trimming
+//! [`has_power_failed()`]: struct.Mcp794xx.html#method.has_power_failed
+//! [`clear_power_failed()`]: struct.Mcp794xx.html#method.clear_power_failed
+//! [`get_power_down_datetime()`]: struct.Mcp794xx.html#method.get_power_down_datetime
+//! [`get_power_up_datetime()`]: struct.Mcp794xx.html#method.get_power_up_datetime
+//! [`enable_backup_battery_power()`]: struct.Mcp794xx.html#method.enable_backup_battery_power
+//! [`read_sram_byte()`]: struct.Mcp794xx.html#method.read_sram_byte
+//! [`read_sram_data()`]: struct.Mcp794xx.html#method.read_sram_data
+//! [`read_sram_current_byte()`]: struct.Mcp794xx.html#method.read_sram_current_byte
+//! [`enable_alarm()`]: struct.Mcp794xx.html#method.enable_alarm
+//! [`set_alarm()`]: struct.Mcp794xx.html#method.set_alarm
+//! [`has_alarm_matched()`]: struct.Mcp794xx.html#method.has_alarm_matched
+//! [`clear_alarm_matched_flag()`]: struct.Mcp794xx.html#method.clear_alarm_matched_flag
+//! [`enable_square_wave()`]: struct.Mcp794xx.html#method.enable_square_wave
+//! [`set_square_wave_frequency()`]: struct.Mcp794xx.html#method.set_square_wave_frequency
+//! [`read_protected_eeprom_byte()`]: struct.Mcp794xx.html#method.read_protected_eeprom_byte
+//! [`read_protected_eeprom_data()`]: struct.Mcp794xx.html#method.read_protected_eeprom_data
+//! [`read_eui48()`]: struct.Mcp794xx.html#method.read_eui48
+//! [`read_eui64()`]: struct.Mcp794xx.html#method.read_eui64
+//! [`read_eeprom_byte()`]: struct.Mcp794xx.html#method.read_eeprom_byte
+//! [`read_eeprom_data()`]: struct.Mcp794xx.html#method.read_eeprom_data
+//! [`set_eeprom_write_protection()`]: struct.Mcp794xx.html#method.set_eeprom_write_protection
+//! [`read_eeprom_current_byte()`]: struct.Mcp794xx.html#method.read_eeprom_current_byte
+//!
 
 #![deny(unsafe_code, missing_docs)]
 #![no_std]
