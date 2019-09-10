@@ -18,6 +18,8 @@ pub mod marker {
     pub trait WithBatteryPower: private::Sealed {}
     /// Supports protected EEPROM
     pub trait WithProtectedEeprom: private::Sealed {}
+    /// Supports EEPROM and protected EEPROM
+    pub trait WithEeprom: private::Sealed {}
     /// Contains EUI-48
     pub trait WithEui48: private::Sealed {}
     /// Contains EUI-64
@@ -61,6 +63,9 @@ impl marker::WithEui48 for ic::Mcp79401 {}
 impl marker::WithEui48 for ic::Mcp79411 {}
 impl marker::WithEui64 for ic::Mcp79402 {}
 impl marker::WithEui64 for ic::Mcp79412 {}
+impl marker::WithEeprom for ic::Mcp79410 {}
+impl marker::WithEeprom for ic::Mcp79411 {}
+impl marker::WithEeprom for ic::Mcp79412 {}
 
 mod types;
 pub use types::{

@@ -7,33 +7,43 @@ where
     DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
     IC: marker::WithProtectedEeprom,
 {
-    /// Read a single byte from an address in EEPROM.
+    /// Read a single byte from an address in the protected EEPROM.
     ///
-    /// Valid addresses are from 0xF0 to 0xF7. Otherwise an
-    /// Error::InvalidInputData will be returned.
-    pub fn read_eeprom_byte(&mut self, address: u8) -> Result<u8, Error<E>> {
-        if address < 0xF0 || address > 0xF7 {
+    /// Valid addresses are in the range `[0xF0-0xF7]`.
+    /// `Error::InvalidInputData` will be returned for invalid addresses.
+    pub fn read_protected_eeprom_byte(&mut self, address: u8) -> Result<u8, Error<E>> {
+        if !is_protected_eeprom_address(address) {
             return Err(Error::InvalidInputData);
         }
         self.iface.read_eeprom_byte(address)
     }
 
-    /// Read EEPROM starting in an address as many bytes as necessary to fill
-    /// the data array provided.
-    pub fn read_eeprom_data(&mut self, address: u8, data: &mut [u8]) -> Result<(), Error<E>> {
-        if address < 0xF0 || address > 0xF7 || data.len() > 8 || (data.len() as u8 + address) > 0xF8
+    /// Read protected EEPROM starting in an address as many bytes as
+    /// necessary to fill the data array provided.
+    ///
+    /// Valid addresses are in the range `[0xF0-0xF7]`.
+    /// `Error::InvalidInputData` will be returned for invalid addresses or
+    /// if the reading would overflow the size of the protected EEPROM.
+    pub fn read_protected_eeprom_data(
+        &mut self,
+        address: u8,
+        data: &mut [u8],
+    ) -> Result<(), Error<E>> {
+        if !is_protected_eeprom_address(address)
+            || data.len() > 8
+            || (data.len() as u8 + address) > 0xF8
         {
             return Err(Error::InvalidInputData);
         }
         self.iface.read_eeprom_data(address, data)
     }
 
-    /// Unlock EEPROM and write a single byte to an address.
+    /// Unlock protected EEPROM and write a single byte to an address.
     ///
-    /// Valid addresses are from 0xF0 to 0xF7. Otherwise an
-    /// Error::InvalidInputData will be returned.
-    pub fn write_eeprom_byte(&mut self, address: u8, data: u8) -> Result<(), Error<E>> {
-        if address < 0xF0 || address > 0xF7 {
+    /// Valid addresses are in the range `[0xF0-0xF7]`.
+    /// `Error::InvalidInputData` will be returned for invalid addresses.
+    pub fn write_protected_eeprom_byte(&mut self, address: u8, data: u8) -> Result<(), Error<E>> {
+        if !is_protected_eeprom_address(address) {
             return Err(Error::InvalidInputData);
         }
         self.iface.write_register(EEUNLOCK, 0x55)?;
@@ -41,9 +51,19 @@ where
         self.iface.write_eeprom_byte(address, data)
     }
 
-    /// Unlock EEPROM and write data array starting in an address.
-    pub fn write_eeprom_data(&mut self, address: u8, data: &[u8]) -> Result<(), Error<E>> {
-        if address < 0xF0 || address > 0xF7 || data.len() > 8 || (data.len() as u8 + address) > 0xF8
+    /// Write data array starting in an address in the protected EEPROM.
+    ///
+    /// Valid addresses are in the range `[0xF0-0xF7]`.
+    /// `Error::InvalidInputData` will be returned for invalid addresses or
+    /// if the writing would overflow the size of the protected EEPROM.
+    pub fn write_protected_eeprom_data(
+        &mut self,
+        address: u8,
+        data: &[u8],
+    ) -> Result<(), Error<E>> {
+        if !is_protected_eeprom_address(address)
+            || data.len() > 8
+            || (data.len() as u8 + address) > 0xF8
         {
             return Err(Error::InvalidInputData);
         }
@@ -54,6 +74,74 @@ where
         self.iface.write_register(EEUNLOCK, 0xAA)?;
         self.iface.write_eeprom_data(&payload[..=data.len()])
     }
+}
+
+fn is_protected_eeprom_address(address: u8) -> bool {
+    address >= 0xF0 && address <= 0xF7
+}
+
+impl<DI, E, IC> Mcp794xx<DI, IC>
+where
+    DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
+    IC: marker::WithEeprom,
+{
+    /// Read a single byte from an address in EEPROM.
+    ///
+    /// Valid addresses are in the range `[0x00-0x7F]`.
+    /// `Error::InvalidInputData` will be returned for invalid addresses.
+    pub fn read_eeprom_byte(&mut self, address: u8) -> Result<u8, Error<E>> {
+        if is_eeprom_address(address) {
+            self.iface.read_eeprom_byte(address)
+        } else {
+            Err(Error::InvalidInputData)
+        }
+    }
+
+    /// Read EEPROM starting in an address as many bytes as necessary to fill
+    /// the data array provided.
+    ///
+    /// Valid addresses are in the range `[0x00-0x7F]`.
+    /// `Error::InvalidInputData` will be returned for invalid addresses or
+    /// if the reading would overflow the size of the EEPROM.
+    pub fn read_eeprom_data(&mut self, address: u8, data: &mut [u8]) -> Result<(), Error<E>> {
+        if is_eeprom_address(address) && data.len() <= 128 && (address + data.len() as u8) < 0x80 {
+            self.iface.read_eeprom_data(address, data)
+        } else {
+            Err(Error::InvalidInputData)
+        }
+    }
+
+    /// Write a single byte to an address in EEPROM.
+    ///
+    /// Valid addresses are in the range `[0x00-0x7F]`.
+    /// `Error::InvalidInputData` will be returned for invalid addresses.
+    pub fn write_eeprom_byte(&mut self, address: u8, data: u8) -> Result<(), Error<E>> {
+        if is_eeprom_address(address) {
+            self.iface.write_eeprom_byte(address, data)
+        } else {
+            Err(Error::InvalidInputData)
+        }
+    }
+
+    /// Write data array starting in an address in EEPROM.
+    ///
+    /// Valid addresses are in the range `[0x00-0x7F]`.
+    /// `Error::InvalidInputData` will be returned for invalid addresses or
+    /// if the writing would overflow the size of the EEPROM.
+    pub fn write_eeprom_data(&mut self, address: u8, data: &[u8]) -> Result<(), Error<E>> {
+        if is_eeprom_address(address) && data.len() <= 128 && (address + data.len() as u8) < 0x80 {
+            let mut payload = [0; 128]; // max size
+            payload[0] = address;
+            payload[1..=data.len()].copy_from_slice(&data);
+            self.iface.write_eeprom_data(&payload[..=data.len()])
+        } else {
+            Err(Error::InvalidInputData)
+        }
+    }
+}
+
+fn is_eeprom_address(address: u8) -> bool {
+    address < 0x80
 }
 
 impl<DI, E, IC> Mcp794xx<DI, IC>

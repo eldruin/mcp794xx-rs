@@ -4,34 +4,32 @@ extern crate mcp794xx;
 use mcp794xx::Error;
 mod common;
 use common::{
-    destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp79410, destroy_mcp79411,
-    destroy_mcp79412, new_mcp79400, new_mcp79401, new_mcp79402, new_mcp79410, new_mcp79411,
-    new_mcp79412, DEVICE_ADDRESS as DEV_ADDR, EEPROM_ADDRESS,
+    destroy_mcp79410, destroy_mcp79411, destroy_mcp79412, new_mcp79410, new_mcp79411, new_mcp79412,
+    EEPROM_ADDRESS,
 };
-const EEUNLOCK: u8 = 0b0000_1001;
 
 macro_rules! set_invalid_eeprom_test {
     ($name:ident, $method:ident $(, $value:expr)*) => {
         mod $name {
             use super::*;
-            for_all_ics_with_protected_eeprom!(cannot_set_invalid, set_invalid_test, $method, $($value),*);
+            for_all_ics_with_eeprom!(cannot_set_invalid, set_invalid_test, $method, $($value),*);
         }
     };
 }
 
-set_invalid_eeprom_test!(read_eeprom_byte_too_small_address, read_eeprom_byte, 0xEF);
-set_invalid_eeprom_test!(read_eeprom_byte_too_big_address, read_eeprom_byte, 0xF8);
+set_invalid_eeprom_test!(read_byte_invalid1, read_eeprom_byte, 0x80);
+set_invalid_eeprom_test!(read_byte_invalid2, read_eeprom_byte, 0xF0);
 
-for_all_ics_with_protected_eeprom!(
+for_all_ics_with_eeprom!(
     can_read_byte,
     get_test,
     read_eeprom_byte,
-    [I2cTrans::write_read(EEPROM_ADDRESS, vec![0xF0], vec![15])],
+    [I2cTrans::write_read(EEPROM_ADDRESS, vec![0x00], vec![15])],
     15,
-    0xF0
+    0x00
 );
 
-for_all_ics_with_protected_eeprom!(
+for_all_ics_with_eeprom!(
     can_read_current_byte,
     get_test,
     read_eeprom_current_byte,
@@ -39,10 +37,10 @@ for_all_ics_with_protected_eeprom!(
     15
 );
 
-set_invalid_eeprom_test!(read_data_too_sml_addr, read_eeprom_data, 0xEF, &mut [0]);
-set_invalid_eeprom_test!(read_data_too_big_addr, read_eeprom_data, 0xF8, &mut [0]);
-set_invalid_eeprom_test!(read_data_too_much1, read_eeprom_data, 0xF7, &mut [0; 2]);
-set_invalid_eeprom_test!(read_data_too_much2, read_eeprom_data, 0xF0, &mut [0; 9]);
+set_invalid_eeprom_test!(read_data_invalid1, read_eeprom_data, 0x80, &mut [0]);
+set_invalid_eeprom_test!(read_data_invalid2, read_eeprom_data, 0xF0, &mut [0]);
+set_invalid_eeprom_test!(read_data_too_much1, read_eeprom_data, 0x7F, &mut [0; 2]);
+set_invalid_eeprom_test!(read_data_too_much2, read_eeprom_data, 0x00, &mut [0; 129]);
 
 #[macro_export]
 macro_rules! read_data_test {
@@ -60,63 +58,35 @@ macro_rules! read_data_test {
     };
 }
 
-for_all_ics_with_protected_eeprom!(
+for_all_ics_with_eeprom!(
     can_read_data,
     read_data_test,
     read_eeprom_data,
     [I2cTrans::write_read(
         EEPROM_ADDRESS,
-        vec![0xF0],
+        vec![0x00],
         vec![1, 2, 3, 4, 5]
     )],
-    0xF0,
+    0x00,
     [1, 2, 3, 4, 5]
 );
 
-for_all_ics_with_eui48!(
-    can_read_eui48,
-    get_test,
-    read_eui48,
-    [I2cTrans::write_read(
-        EEPROM_ADDRESS,
-        vec![0xF2],
-        vec![1, 2, 3, 4, 5, 6]
-    )],
-    [1, 2, 3, 4, 5, 6]
-);
+set_invalid_eeprom_test!(write_byte_invalid1, write_eeprom_byte, 0x80, 0);
+set_invalid_eeprom_test!(write_byte_invalid3, write_eeprom_byte, 0xF0, 0);
 
-for_all_ics_with_eui64!(
-    can_read_eui64,
-    get_test,
-    read_eui64,
-    [I2cTrans::write_read(
-        EEPROM_ADDRESS,
-        vec![0xF0],
-        vec![1, 2, 3, 4, 5, 6, 7, 8]
-    )],
-    [1, 2, 3, 4, 5, 6, 7, 8]
-);
-
-set_invalid_eeprom_test!(write_byte_too_small_address, write_eeprom_byte, 0xEF, 0);
-set_invalid_eeprom_test!(write_byte_too_big_address, write_eeprom_byte, 0xF8, 0);
-
-for_all_ics_with_protected_eeprom!(
+for_all_ics_with_eeprom!(
     can_write_byte,
     call_test,
     write_eeprom_byte,
-    [
-        I2cTrans::write(DEV_ADDR, vec![EEUNLOCK, 0x55]),
-        I2cTrans::write(DEV_ADDR, vec![EEUNLOCK, 0xAA]),
-        I2cTrans::write(EEPROM_ADDRESS, vec![0xF0, 15])
-    ],
-    0xF0,
+    [I2cTrans::write(EEPROM_ADDRESS, vec![0x00, 15])],
+    0x00,
     15
 );
 
-set_invalid_eeprom_test!(write_data_too_sml_addr, write_eeprom_data, 0xEF, &[0]);
-set_invalid_eeprom_test!(write_data_too_big_addr, write_eeprom_data, 0xF8, &[0]);
-set_invalid_eeprom_test!(write_data_too_much1, write_eeprom_data, 0xF7, &[0; 2]);
-set_invalid_eeprom_test!(write_data_too_much2, write_eeprom_data, 0xF0, &[0; 9]);
+set_invalid_eeprom_test!(write_data_invalid1, write_eeprom_data, 0x80, &[0]);
+set_invalid_eeprom_test!(write_data_invalid2, write_eeprom_data, 0xF0, &[0]);
+set_invalid_eeprom_test!(write_data_too_much1, write_eeprom_data, 0x7F, &[0; 2]);
+set_invalid_eeprom_test!(write_data_too_much2, write_eeprom_data, 0x00, &[0; 129]);
 
 #[macro_export]
 macro_rules! write_data_test {
@@ -132,15 +102,11 @@ macro_rules! write_data_test {
     };
 }
 
-for_all_ics_with_protected_eeprom!(
+for_all_ics_with_eeprom!(
     can_write_data,
     write_data_test,
     write_eeprom_data,
-    [
-        I2cTrans::write(DEV_ADDR, vec![EEUNLOCK, 0x55]),
-        I2cTrans::write(DEV_ADDR, vec![EEUNLOCK, 0xAA]),
-        I2cTrans::write(EEPROM_ADDRESS, vec![0xF0, 1, 2, 3, 4, 5])
-    ],
-    0xF0,
+    [I2cTrans::write(EEPROM_ADDRESS, vec![0x00, 1, 2, 3, 4, 5])],
+    0x00,
     [1, 2, 3, 4, 5]
 );
