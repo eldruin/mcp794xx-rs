@@ -54,17 +54,25 @@ This driver allows you to:
 
 ## The devices
 
-### MCP7940N
-The MCP7940N Real-Time Clock/Calendar (RTCC) tracks time using internal counters for hours, minutes, seconds, days, months, years, and day of week. Alarms can be configured on all counters up to and including months. For usage and configuration, the MCP7940N supports I2C communications up to 400 kHz.
+This driver is compatible with the devices: MCP7940N, MCP7940M, MCP79400, MCP79401, MCP79402, MCP79410, MCP79411 and MCP79412.
+
+The Real-Time Clock/Calendar (RTCC) tracks time using internal counters for hours, minutes, seconds, days, months, years, and day of week. Alarms can be configured on all counters up to and including months. For usage and configuration, the devices support I2C communications up to 400 kHz.
 
 The open-drain, multi-functional output can be configured to assert on an alarm match, to output a selectable frequency square wave, or as a general purpose output.
 
-The MCP7940N is designed to operate using a 32.768 kHz tuning fork crystal with external crystal load capacitors. On-chip digital trimming can be used to adjust for frequency variance caused by crystal tolerance and temperature.
+The devices are designed to operate using a 32.768 kHz tuning fork crystal with external crystal load capacitors. On-chip digital trimming can be used to adjust for frequency variance caused by crystal tolerance and temperature.
 
 SRAM and timekeeping circuitry are powered from the back-up supply when main power is lost, allowing the device to maintain accurate time and the SRAM contents. The times when the device switches over to the back-up supply and when primary power returns are both logged by the power-fail time-stamp.
 
+Some of the devices feature 1 Kbit of internal non-volatile EEPROM with software write-protectable regions. There is an additional 64 bits of protected non-volatile memory which is only writable after an unlock sequence, making it ideal for storing a unique ID or other critical information.
+
+Some of the devices offer a pre-programmed with EUI-48 and EUI-64 addresses. Custom programming is also available.
+
 Datasheets:
 - [MCP7940N](http://ww1.microchip.com/downloads/en/DeviceDoc/20005010F.pdf)
+- [MCP7940M](http://ww1.microchip.com/downloads/en/DeviceDoc/20002292B.pdf)
+- [MCP79400/MCP79401/MCP79402](http://ww1.microchip.com/downloads/en/DeviceDoc/MCP79400-MCP79401-MCP79402-Data-Sheet-20005009G.pdf)
+- [MCP79410/MCP79411/MCP79412](http://ww1.microchip.com/downloads/en/DeviceDoc/20002266H.pdf)
 
 ## Usage
 
