@@ -112,6 +112,283 @@
 //! - [MCP79400/MCP79401/MCP79402](http://ww1.microchip.com/downloads/en/DeviceDoc/MCP79400-MCP79401-MCP79402-Data-Sheet-20005009G.pdf)
 //! - [MCP79410/MCP79411/MCP79412](http://ww1.microchip.com/downloads/en/DeviceDoc/20002266H.pdf)
 //!
+//! ## Usage examples (see also examples folder)
+//!
+//! To use this driver, import this crate and an `embedded_hal` implementation,
+//! then instantiate the appropriate device.
+//! The following examples use an instance of the device MCP7940N except when
+//! using features specific to another IC.
+//!
+//! Please find additional examples using hardware in this repository: [driver-examples]
+//!
+//! [driver-examples]: https://github.com/eldruin/driver-examples
+//!
+//! ### Create a driver instance for the MCP7940N
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::Mcp794xx;
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let rtc = Mcp794xx::new_mcp7940n(dev);
+//! // do something...
+//!
+//! // get the I2C device back
+//! let dev = rtc.destroy();
+//! # }
+//! ```
+//!
+//! ### Set the current date and time at once
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::{Mcp794xx, DateTime, Hours, Rtcc};
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! let datetime = DateTime {
+//!                           year: 2018,
+//!                           month: 8,
+//!                           day: 15,
+//!                           weekday: 4,
+//!                           hour: Hours::H24(19),
+//!                           minute: 59,
+//!                           second: 58
+//!                };
+//! rtc.set_datetime(&datetime).unwrap();
+//! rtc.enable().unwrap();
+//! # }
+//! ```
+//!
+//! ### Change the date and time at once
+//!
+//! Note that before changing the date/time the oscillators must be disabled
+//! and you must be wait unter the oscillator reports not to be running anymore.
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::{Mcp794xx, DateTime, Hours, Rtcc};
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! let datetime = DateTime {
+//!                           year: 2018,
+//!                           month: 8,
+//!                           day: 15,
+//!                           weekday: 4,
+//!                           hour: Hours::H24(19),
+//!                           minute: 59,
+//!                           second: 58
+//!                };
+//! rtc.set_datetime(&datetime).unwrap();
+//! rtc.enable().unwrap();
+//! // ...
+//! // after running for a while disable before changing the time.
+//!
+//! rtc.disable().unwrap();
+//! while (rtc.is_oscillator_running().unwrap()) {
+//!     // some delay...
+//! }
+//! // now you can change the date/time
+//! rtc.set_datetime(&datetime).unwrap();
+//! rtc.enable().unwrap();
+//! # }
+//! ```
+//!
+//! ### Get the current date and time at once
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::{Mcp794xx, Hours, Rtcc};
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//!
+//! let dt = rtc.get_datetime().unwrap();
+//!
+//! // The hours depend on the RTC running mode
+//! match  dt.hour {
+//!     Hours::H24(h) => println!("{}-{}-{}, {} {}:{}:{}", dt.year,
+//!                               dt.month, dt.day, dt.weekday,
+//!                               h, dt.minute, dt.second),
+//!     Hours::AM(h) => println!("{}-{}-{}, {} {}:{}:{} AM", dt.year,
+//!                              dt.month, dt.day, dt.weekday,
+//!                              h, dt.minute, dt.second),
+//!     Hours::PM(h) => println!("{}-{}-{}, {} {}:{}:{} PM", dt.year,
+//!                              dt.month, dt.day, dt.weekday,
+//!                              h, dt.minute, dt.second),
+//! }
+//! // This will print something like: 2018-08-15, 4 19:59:58
+//! # }
+//! ```
+//!
+//! ### Set / Get the year
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::{ Mcp794xx, Hours, Rtcc };
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! rtc.set_year(2019).unwrap();
+//! let year = rtc.get_year().unwrap();
+//! println!("Year: {}", year);
+//! # }
+//! ```
+//! Similar methods exist for month, day, weekday, hours, minutes and seconds.
+//!
+//! ### Enable the square-wave output with a frequency of 4.096Hz
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::{ Mcp794xx, SqWFreq };
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! rtc.set_square_wave_frequency(SqWFreq::Hz4_096).unwrap();
+//! rtc.enable_square_wave().unwrap();
+//! # }
+//! ```
+//!
+//! ### Set the alarm 1 to each week on a week day at a specific time
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::{Mcp794xx, Hours, Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity};
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! let datetime = AlarmDateTime {
+//!     month: 9,
+//!     day: 17,
+//!     weekday: 1,
+//!     hour: Hours::H24(7),
+//!     minute: 2,
+//!     second: 15
+//! };
+//! rtc.set_alarm(
+//!     Alarm::One,
+//!     datetime,
+//!     AlarmMatching::WeekdayMatches,
+//!     AlarmOutputPinPolarity::High
+//! ).unwrap();
+//! rtc.enable_alarm(Alarm::One).unwrap();
+//! # }
+//! ```
+//!
+//! ### Set output pin
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::{Mcp794xx, OutputPinLevel};
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! rtc.set_output_pin(OutputPinLevel::High).unwrap();
+//! # }
+//! ```
+//!
+//! ### Set trimming
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::Mcp794xx;
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! rtc.set_trimming(-50).unwrap();
+//! rtc.enable_coarse_trim().unwrap();
+//! # }
+//! ```
+//!
+//! ### Check power down date and time
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::Mcp794xx;
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! rtc.enable_backup_battery_power().unwrap();
+//! loop {
+//!     if rtc.has_power_failed().unwrap() {
+//!         let datetime = rtc.get_power_down_datetime().unwrap();
+//!         rtc.clear_power_failed().unwrap();
+//!         //...
+//!     }
+//!     //...
+//! }
+//! # }
+//! ```
+//!
+//! ### Read/write SRAM
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::Mcp794xx;
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp7940n(dev);
+//! let value = rtc.read_sram_byte(0x20).unwrap();
+//! let data = [1, 2, 3, 4, 5];
+//! rtc.write_sram_data(0x25, &data).unwrap();
+//! # }
+//! ```
+//!
+//! ### Read/write EEPROM and protected EEPROM
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::Mcp794xx;
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp79410(dev);
+//! let value = rtc.read_eeprom_byte(0x01).unwrap();
+//! let data = [1, 2, 3, 4, 5];
+//! rtc.write_eeprom_data(0x01, &data).unwrap();
+//!
+//! rtc.write_protected_eeprom_data(0xF0, &data).unwrap();
+//! # }
+//! ```
+//!
+//! ### Read EUI-64
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate mcp794xx;
+//! use mcp794xx::Mcp794xx;
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut rtc = Mcp794xx::new_mcp79402(dev);
+//! let value = rtc.read_eui64().unwrap();
+//! # }
+//! ```
+//!
 
 #![deny(unsafe_code, missing_docs)]
 #![no_std]
