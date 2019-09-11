@@ -113,7 +113,7 @@ fn main() {
     let seconds = rtc.get_seconds().unwrap();
     println!("Seconds: {}", seconds);
 
-    let _dev = rtc.destroy_mcp7940n();
+    let _dev = rtc.destroy();
 }
 ```
 

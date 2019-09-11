@@ -248,7 +248,7 @@ mod common;
 mod eeprom;
 
 macro_rules! create_destroy_i2c {
-    ($ic:ident, $create:ident, $destroy:ident) => {
+    ($ic:ident, $create:ident) => {
         impl<I2C, E> Mcp794xx<I2cInterface<I2C>, ic::$ic>
         where
             I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
@@ -269,20 +269,20 @@ macro_rules! create_destroy_i2c {
             }
 
             /// Destroy driver instance, return I²C bus instance.
-            pub fn $destroy(self) -> I2C {
+            pub fn destroy(self) -> I2C {
                 self.iface.i2c
             }
         }
     };
 }
-create_destroy_i2c!(Mcp7940n, new_mcp7940n, destroy_mcp7940n);
-create_destroy_i2c!(Mcp7940m, new_mcp7940m, destroy_mcp7940m);
-create_destroy_i2c!(Mcp79400, new_mcp79400, destroy_mcp79400);
-create_destroy_i2c!(Mcp79401, new_mcp79401, destroy_mcp79401);
-create_destroy_i2c!(Mcp79402, new_mcp79402, destroy_mcp79402);
-create_destroy_i2c!(Mcp79410, new_mcp79410, destroy_mcp79410);
-create_destroy_i2c!(Mcp79411, new_mcp79411, destroy_mcp79411);
-create_destroy_i2c!(Mcp79412, new_mcp79412, destroy_mcp79412);
+create_destroy_i2c!(Mcp7940n, new_mcp7940n);
+create_destroy_i2c!(Mcp7940m, new_mcp7940m);
+create_destroy_i2c!(Mcp79400, new_mcp79400);
+create_destroy_i2c!(Mcp79401, new_mcp79401);
+create_destroy_i2c!(Mcp79402, new_mcp79402);
+create_destroy_i2c!(Mcp79410, new_mcp79410);
+create_destroy_i2c!(Mcp79411, new_mcp79411);
+create_destroy_i2c!(Mcp79412, new_mcp79412);
 
 mod private {
     use super::{ic, interface};

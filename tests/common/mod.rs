@@ -57,7 +57,7 @@ macro_rules! create_destroy_i2c {
         }
         #[allow(unused)]
         pub fn $destroy(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::$ic>) {
-            dev.$destroy().done();
+            dev.destroy().done();
         }
     };
 }
