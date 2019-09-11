@@ -109,6 +109,7 @@ fn main() {
         second: 58,
     };
     rtc.set_datetime(&datetime).unwrap();
+    rtc.enable().unwrap();
     // do something else...
     let seconds = rtc.get_seconds().unwrap();
     println!("Seconds: {}", seconds);
