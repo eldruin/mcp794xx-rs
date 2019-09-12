@@ -455,7 +455,7 @@ impl marker::WithEeprom for ic::Mcp79411 {}
 impl marker::WithEeprom for ic::Mcp79412 {}
 
 mod types;
-pub use types::{
+pub use crate::types::{
     Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity, EepromWriteProtection, Error,
     OutputPinLevel, PowerFailDateTime, SqWFreq,
 };
@@ -519,7 +519,7 @@ pub(crate) struct Config {
 }
 
 pub mod interface;
-use interface::I2cInterface;
+use crate::interface::I2cInterface;
 mod battery_power;
 mod common;
 mod eeprom;

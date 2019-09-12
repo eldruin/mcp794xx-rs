@@ -1,5 +1,5 @@
 use super::conversion::{convert_hours_to_format, decimal_to_packed_bcd, hours_to_register};
-use {
+use crate::{
     interface, Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity, BitFlags, Error,
     Mcp794xx, Register,
 };

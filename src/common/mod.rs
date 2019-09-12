@@ -1,4 +1,4 @@
-use {interface, BitFlags, Config, Error, Mcp794xx, OutputPinLevel, Register, SqWFreq};
+use crate::{interface, BitFlags, Config, Error, Mcp794xx, OutputPinLevel, Register, SqWFreq};
 pub mod alarm;
 pub mod conversion;
 pub mod datetime;

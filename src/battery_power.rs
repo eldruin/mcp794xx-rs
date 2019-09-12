@@ -1,7 +1,7 @@
 //! Backup battery power methods
 
-use common::conversion::{hours_from_register, packed_bcd_to_decimal};
-use {interface, marker, BitFlags, Error, Mcp794xx, PowerFailDateTime, Register};
+use crate::common::conversion::{hours_from_register, packed_bcd_to_decimal};
+use crate::{interface, marker, BitFlags, Error, Mcp794xx, PowerFailDateTime, Register};
 
 impl<DI, E, IC> Mcp794xx<DI, IC>
 where

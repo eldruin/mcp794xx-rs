@@ -1,9 +1,9 @@
 extern crate embedded_hal_mock as hal;
-use hal::i2c::Transaction as I2cTrans;
+use crate::hal::i2c::Transaction as I2cTrans;
 extern crate mcp794xx;
 use mcp794xx::{EepromWriteProtection, Error};
 mod common;
-use common::{
+use crate::common::{
     destroy_mcp79410, destroy_mcp79411, destroy_mcp79412, new_mcp79410, new_mcp79411, new_mcp79412,
     EEPROM_ADDRESS,
 };

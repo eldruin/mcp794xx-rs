@@ -4,7 +4,7 @@ use super::super::{BitFlags, DateTime, Error, Hours, Mcp794xx, Register, Rtcc};
 use super::conversion::{
     decimal_to_packed_bcd, hours_from_register, hours_to_register, packed_bcd_to_decimal,
 };
-use interface;
+use crate::interface;
 
 impl<DI, E, IC> Rtcc for Mcp794xx<DI, IC>
 where

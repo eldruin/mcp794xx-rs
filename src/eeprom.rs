@@ -1,5 +1,5 @@
 //! EEPROM methods
-use {interface, marker, EepromWriteProtection, Error, Mcp794xx};
+use crate::{interface, marker, EepromWriteProtection, Error, Mcp794xx};
 const EEUNLOCK: u8 = 0b0000_1001;
 const EEPROM_STATUS: u8 = 0xFF;
 
