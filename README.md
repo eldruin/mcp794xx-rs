@@ -6,7 +6,6 @@
 -->
 [![Build Status](https://travis-ci.org/eldruin/mcp794xx-rs.svg?branch=master)](https://travis-ci.org/eldruin/mcp794xx-rs)
 [![Coverage Status](https://coveralls.io/repos/eldruin/mcp794xx-rs/badge.svg?branch=master)](https://coveralls.io/r/eldruin/mcp794xx-rs?branch=master)
-![Maintenance Intention](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
 
 This is a platform agnostic Rust driver for the MCP794xx real-time clock
 / calendar family, based on the [`embedded-hal`] traits.
