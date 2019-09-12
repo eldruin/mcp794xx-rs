@@ -1,9 +1,7 @@
 # Rust MCP794xx Real-Time Clock / Calendar Family Driver
 
-<!-- TODO
 [![crates.io](https://img.shields.io/crates/v/mcp794xx.svg)](https://crates.io/crates/mcp794xx)
 [![Docs](https://docs.rs/mcp794xx/badge.svg)](https://docs.rs/mcp794xx)
--->
 [![Build Status](https://travis-ci.org/eldruin/mcp794xx-rs.svg?branch=master)](https://travis-ci.org/eldruin/mcp794xx-rs)
 [![Coverage Status](https://coveralls.io/repos/eldruin/mcp794xx-rs/badge.svg?branch=master)](https://coveralls.io/r/eldruin/mcp794xx-rs?branch=master)
 
