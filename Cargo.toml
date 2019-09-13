@@ -26,7 +26,7 @@ coveralls = { repository = "eldruin/mcp794xx-rs", branch = "master", service = "
 
 [dependencies]
 embedded-hal = "0.2"
-rtcc = { git = "https://github.com/eldruin/rtcc-rs" }
+rtcc = "0.1"
 
 [dev-dependencies]
 linux-embedded-hal = "0.2"
