@@ -115,19 +115,6 @@ fn main() {
 }
 ```
 
-## Status
-
-This driver is compatible with:
-
-- [X] MCP7940N
-- [X] MCP7940M
-- [X] MCP79400
-- [X] MCP79401
-- [X] MCP79402
-- [X] MCP79410
-- [X] MCP79411
-- [X] MCP79412
-
 ## Support
 
 For questions, issues, feature requests, and other changes, please file an
