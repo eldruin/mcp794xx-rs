@@ -74,6 +74,8 @@
 //! [`set_eeprom_write_protection()`]: struct.Mcp794xx.html#method.set_eeprom_write_protection
 //! [`read_eeprom_current_byte()`]: struct.Mcp794xx.html#method.read_eeprom_current_byte
 //!
+//! [Introductory blog post](https://blog.eldruin.com/mcp794xx-real-time-clock-rtc-driver-in-rust/)
+//!
 //! ## The devices
 //!
 //! This driver is compatible with the devices: MCP7940N, MCP7940M, MCP79400,

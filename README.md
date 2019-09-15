@@ -49,6 +49,8 @@ This driver allows you to:
       - Set EEPROM block write protection. See: `set_eeprom_write_protection()`.
       - Read current position from the EEPROM. See: `read_eeprom_current_byte()`.
 
+[Introductory blog post](https://blog.eldruin.com/mcp794xx-real-time-clock-rtc-driver-in-rust/)
+
 ## The devices
 
 This driver is compatible with the devices: MCP7940N, MCP7940M, MCP79400, MCP79401, MCP79402, MCP79410, MCP79411 and MCP79412.
