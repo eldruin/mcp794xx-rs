@@ -196,7 +196,7 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate mcp794xx;
-//! use mcp794xx::{Mcp794xx, Rtcc};
+//! use mcp794xx::{Mcp794xx, Rtcc, Datelike, Timelike};
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
