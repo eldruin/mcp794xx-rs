@@ -53,7 +53,7 @@ macro_rules! create_destroy_i2c {
         pub fn $create(
             transactions: &[I2cTrans],
         ) -> Mcp794xx<interface::I2cInterface<I2cMock>, ic::$ic> {
-            Mcp794xx::$create(I2cMock::new(&transactions))
+            Mcp794xx::$create(I2cMock::new(transactions))
         }
         #[allow(unused)]
         pub fn $destroy(dev: Mcp794xx<interface::I2cInterface<I2cMock>, ic::$ic>) {
