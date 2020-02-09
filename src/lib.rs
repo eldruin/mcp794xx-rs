@@ -4,7 +4,9 @@
 //! [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 //!
 //! This driver allows you to:
-//! - Read and set date and time in 12-hour and 24-hour format. See: [`get_datetime()`].
+//! - Read and set date and time. See: [`get_datetime()`].
+//! - Read and set date. See: [`get_date()`].
+//! - Read and set time. See: [`get_time()`].
 //! - Read and set date and time individual elements. For example, see: [`get_year()`].
 //! - Enable and disable the real-time clock. See: [`enable()`].
 //! - Read whether the oscillator is running. See: [`is_oscillator_running()`].
@@ -43,6 +45,8 @@
 //!     - Read current position from the EEPROM. See: [`read_eeprom_current_byte()`].
 //!
 //! [`get_datetime()`]: struct.Mcp794xx.html#method.get_datetime
+//! [`get_date()`]: struct.Mcp794xx.html#method.get_date
+//! [`get_time()`]: struct.Mcp794xx.html#method.get_time
 //! [`get_year()`]: struct.Mcp794xx.html#method.get_year
 //! [`enable()`]: struct.Mcp794xx.html#method.enable
 //! [`is_oscillator_running()`]: struct.Mcp794xx.html#method.is_oscillator_running
@@ -147,20 +151,12 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate mcp794xx;
-//! use mcp794xx::{Mcp794xx, DateTime, Hours, Rtcc};
+//! use mcp794xx::{Mcp794xx, NaiveDate, Hours, Rtcc};
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut rtc = Mcp794xx::new_mcp7940n(dev);
-//! let datetime = DateTime {
-//!                           year: 2018,
-//!                           month: 8,
-//!                           day: 15,
-//!                           weekday: 4,
-//!                           hour: Hours::H24(19),
-//!                           minute: 59,
-//!                           second: 58
-//!                };
+//! let datetime = NaiveDate::from_ymd(2018, 8, 20).and_hms(19, 59, 58);
 //! rtc.set_datetime(&datetime).unwrap();
 //! rtc.enable().unwrap();
 //! # }
@@ -174,20 +170,12 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate mcp794xx;
-//! use mcp794xx::{Mcp794xx, DateTime, Hours, Rtcc};
+//! use mcp794xx::{Mcp794xx, NaiveDate, Hours, Rtcc};
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut rtc = Mcp794xx::new_mcp7940n(dev);
-//! let datetime = DateTime {
-//!                           year: 2018,
-//!                           month: 8,
-//!                           day: 15,
-//!                           weekday: 4,
-//!                           hour: Hours::H24(19),
-//!                           minute: 59,
-//!                           second: 58
-//!                };
+//! let datetime = NaiveDate::from_ymd(2018, 8, 20).and_hms(19, 59, 58);
 //! rtc.set_datetime(&datetime).unwrap();
 //! rtc.enable().unwrap();
 //! // ...
@@ -208,25 +196,16 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate mcp794xx;
-//! use mcp794xx::{Mcp794xx, Hours, Rtcc};
+//! use mcp794xx::{Mcp794xx, Rtcc};
 //!
 //! # fn main() {
 //! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut rtc = Mcp794xx::new_mcp7940n(dev);
 //!
 //! let dt = rtc.get_datetime().unwrap();
-//!
-//! // The hours depend on the RTC running mode
-//! match  dt.hour {
-//!     Hours::H24(h) => println!("{}-{}-{}, {} {}:{}:{}", dt.year,
-//!                               dt.month, dt.day, dt.weekday,
-//!                               h, dt.minute, dt.second),
-//!     Hours::AM(h) => println!("{}-{}-{}, {} {}:{}:{} AM", dt.year,
-//!                              dt.month, dt.day, dt.weekday,
-//!                              h, dt.minute, dt.second),
-//!     Hours::PM(h) => println!("{}-{}-{}, {} {}:{}:{} PM", dt.year,
-//!                              dt.month, dt.day, dt.weekday,
-//!                              h, dt.minute, dt.second),
+//! println!("{}-{}-{}, {} {}:{}:{}", dt.year(),
+//!          dt.month(), dt.day(), dt.weekday().number_from_sunday(),
+//!          dt.hour(), dt.minute(), dt.second());
 //! }
 //! // This will print something like: 2018-08-15, 4 19:59:58
 //! # }
@@ -398,7 +377,7 @@
 extern crate embedded_hal as hal;
 extern crate rtcc;
 use core::marker::PhantomData;
-pub use rtcc::{DateTime, Hours, Rtcc};
+pub use rtcc::{Datelike, Hours, NaiveDate, NaiveDateTime, NaiveTime, Rtcc, Timelike};
 
 /// Feature markers
 pub mod marker {

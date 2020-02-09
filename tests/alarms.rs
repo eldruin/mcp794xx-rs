@@ -9,7 +9,7 @@ use crate::common::{
 };
 extern crate mcp794xx;
 use mcp794xx::{
-    Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity, DateTime, Error, Hours, Rtcc,
+    Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity, Error, Hours, NaiveDate, Rtcc,
 };
 
 macro_rules! invalid_dt_test {
@@ -43,18 +43,10 @@ macro_rules! call_set_alarm_test {
     $(, $value:expr)*) => {
         #[test]
         fn $name() {
-            const DT:DateTime = DateTime {
-        year: 2019,
-        month: 11,
-        day: 13,
-        weekday: 2,
-        hour: Hours::H24(23),
-        minute: 59,
-        second: 58,
-    };
+            let dt = NaiveDate::from_ymd(2019, 11, 13).and_hms(23,59, 58);
             let trans = $transactions;
             let mut dev = $create_method(&trans);
-            dev.set_datetime(&DT).unwrap();
+            dev.set_datetime(&dt).unwrap();
             dev.set_alarm($($value),*).unwrap();
             $destroy_method(dev);
         }
@@ -75,7 +67,7 @@ macro_rules! set_alarm_test {
                         0b0101_1000,
                         0b0101_1001,
                         0b0010_0011,
-                        0b0000_0010,
+                        0b0000_0100,
                         0b0001_0011,
                         0b0001_0001,
                         0b0001_1001
@@ -98,7 +90,7 @@ macro_rules! set_alarm_test {
                         0b0101_1000,
                         0b0101_1001,
                         0b0010_0011,
-                        0b0000_0010,
+                        0b0000_0100,
                         0b0001_0011,
                         0b0001_0001,
                         0b0001_1001
@@ -221,7 +213,7 @@ mod set_alarm {
                         0b0101_1000,
                         0b0101_1001,
                         0b0010_0011,
-                        0b0000_0010,
+                        0b0000_0100,
                         0b0001_0011,
                         0b0001_0001,
                         0b0001_1001
@@ -258,7 +250,7 @@ mod set_alarm {
                         0b0101_1000,
                         0b0101_1001,
                         0b0010_0011,
-                        0b0000_0010,
+                        0b0000_0100,
                         0b0001_0011,
                         0b0001_0001,
                         0b0001_1001

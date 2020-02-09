@@ -8,7 +8,7 @@ use crate::common::{
     DEVICE_ADDRESS as DEV_ADDR,
 };
 extern crate mcp794xx;
-use mcp794xx::{DateTime, Error, Hours, Rtcc};
+use mcp794xx::{Error, Hours, NaiveDate, NaiveTime, Rtcc};
 
 macro_rules! set_invalid_param_range_test {
     ($name:ident, $method:ident, $too_small_value:expr, $too_big_value:expr) => {
@@ -83,41 +83,51 @@ mod year {
     set_invalid_param_test!(invalid, set_year, 2100);
 }
 
-macro_rules! invalid_dt_test {
-    ($name:ident, $year:expr, $month:expr, $day:expr, $weekday:expr,
-     $hour:expr, $minute:expr, $second:expr) => {
-        mod $name {
-            use super::*;
-            const DT: DateTime = DateTime {
-                year: $year,
-                month: $month,
-                day: $day,
-                weekday: $weekday,
-                hour: $hour,
-                minute: $minute,
-                second: $second,
-            };
-            set_invalid_param_test!($name, set_datetime, &DT);
-        }
-    };
+mod date {
+    use super::*;
+    get_param_test!(
+        get,
+        get_date,
+        DAY,
+        NaiveDate::from_ymd(2018, 8, 13),
+        [0b0001_0011, 0b0000_1000, 0b0001_1000]
+    );
+
+    set_param_test!(
+        set,
+        set_date,
+        WEEKDAY,
+        &NaiveDate::from_ymd(2018, 8, 13),
+        [0b0000_0010, 0b0001_0011, 0b0000_1000, 0b0001_1000]
+    );
+}
+
+mod time {
+    use super::*;
+    get_param_test!(
+        get,
+        get_time,
+        SECONDS,
+        NaiveTime::from_hms(23, 59, 58),
+        [0b0101_1000, 0b0101_1001, 0b0010_0011]
+    );
+
+    set_param_test!(
+        set,
+        set_time,
+        SECONDS,
+        &NaiveTime::from_hms(23, 59, 58),
+        [0b0101_1000, 0b0101_1001, 0b0010_0011]
+    );
 }
 
 mod datetime {
     use super::*;
-    const DT: DateTime = DateTime {
-        year: 2018,
-        month: 8,
-        day: 13,
-        weekday: 2,
-        hour: Hours::H24(23),
-        minute: 59,
-        second: 58,
-    };
     get_param_test!(
         get,
         get_datetime,
         SECONDS,
-        DT,
+        NaiveDate::from_ymd(2018, 8, 13).and_hms(23, 59, 58),
         [
             0b0101_1000,
             0b0101_1001,
@@ -133,7 +143,7 @@ mod datetime {
         set,
         set_datetime,
         SECONDS,
-        &DT,
+        &NaiveDate::from_ymd(2018, 8, 13).and_hms(23, 59, 58),
         [
             0b0101_1000,
             0b0101_1001,
@@ -145,17 +155,16 @@ mod datetime {
         ]
     );
 
-    invalid_dt_test!(too_small_year, 1999, 8, 13, 2, Hours::H24(23), 59, 58);
-    invalid_dt_test!(too_big_year, 2100, 8, 13, 2, Hours::H24(23), 59, 58);
-    invalid_dt_test!(too_small_month, 2018, 0, 13, 2, Hours::H24(23), 59, 58);
-    invalid_dt_test!(too_big_month, 2018, 13, 13, 2, Hours::H24(23), 59, 58);
-    invalid_dt_test!(too_small_day, 2018, 8, 0, 2, Hours::H24(23), 59, 58);
-    invalid_dt_test!(too_big_day, 2018, 8, 32, 2, Hours::H24(23), 59, 58);
-    invalid_dt_test!(too_small_wd, 2018, 8, 13, 0, Hours::H24(23), 59, 58);
-    invalid_dt_test!(too_big_wd, 2018, 8, 13, 8, Hours::H24(23), 59, 58);
-    invalid_dt_test!(too_big_hours, 2018, 8, 13, 2, Hours::H24(24), 59, 58);
-    invalid_dt_test!(too_big_min, 2018, 8, 13, 2, Hours::H24(24), 60, 58);
-    invalid_dt_test!(too_big_seconds, 2018, 8, 13, 2, Hours::H24(24), 59, 60);
+    set_invalid_param_test!(
+        too_small_year,
+        set_datetime,
+        &NaiveDate::from_ymd(1999, 1, 1).and_hms(1, 1, 1)
+    );
+    set_invalid_param_test!(
+        too_big_year,
+        set_datetime,
+        &NaiveDate::from_ymd(2100, 1, 1).and_hms(1, 1, 1)
+    );
 }
 
 mod leapyear {

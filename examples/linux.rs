@@ -3,21 +3,13 @@ extern crate linux_embedded_hal;
 extern crate mcp794xx;
 
 use linux_embedded_hal::I2cdev;
-use mcp794xx::{DateTime, Hours, Mcp794xx, Rtcc};
+use mcp794xx::{Mcp794xx, NaiveDate, Rtcc};
 
 fn main() {
     let dev = I2cdev::new("/dev/i2c-1").unwrap();
     let mut rtc = Mcp794xx::new_mcp7940n(dev);
     rtc.enable().unwrap();
-    let datetime = DateTime {
-        year: 2018,
-        month: 8,
-        day: 20,
-        weekday: 4,
-        hour: Hours::H24(19),
-        minute: 59,
-        second: 58,
-    };
+    let datetime = NaiveDate::from_ymd(2018, 8, 20).and_hms(19, 59, 58);
     rtc.set_datetime(&datetime).unwrap();
     rtc.enable().unwrap();
     // do something else...
