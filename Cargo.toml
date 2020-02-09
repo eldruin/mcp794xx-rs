@@ -29,7 +29,7 @@ embedded-hal = "0.2"
 rtcc = { git = "https://github.com/eldruin/rtcc-rs" }
 
 [dev-dependencies]
-linux-embedded-hal = "0.2"
+linux-embedded-hal = "0.3"
 embedded-hal-mock = "0.4"
 
 [profile.release]
