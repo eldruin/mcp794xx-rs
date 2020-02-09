@@ -206,7 +206,6 @@
 //! println!("{}-{}-{}, {} {}:{}:{}", dt.year(),
 //!          dt.month(), dt.day(), dt.weekday().number_from_sunday(),
 //!          dt.hour(), dt.minute(), dt.second());
-//! }
 //! // This will print something like: 2018-08-15, 4 19:59:58
 //! # }
 //! ```
