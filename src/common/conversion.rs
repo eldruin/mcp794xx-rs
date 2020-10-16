@@ -102,18 +102,22 @@ mod hours_conversion_tests {
 
     #[test]
     fn can_convert_12h_to_h24() {
+        assert_eq!(Hours::H24(0), convert(true, Hours::AM(12)).unwrap());
         assert_eq!(Hours::H24(11), convert(true, Hours::AM(11)).unwrap());
         assert_eq!(Hours::H24(3), convert(true, Hours::AM(3)).unwrap());
         assert_eq!(Hours::H24(23), convert(true, Hours::PM(11)).unwrap());
         assert_eq!(Hours::H24(15), convert(true, Hours::PM(3)).unwrap());
+        assert_eq!(Hours::H24(12), convert(true, Hours::PM(12)).unwrap());
     }
 
     #[test]
     fn can_convert_h24_to_12h() {
+        assert_eq!(Hours::AM(12), convert(false, Hours::H24(0)).unwrap());
         assert_eq!(Hours::AM(11), convert(false, Hours::H24(11)).unwrap());
         assert_eq!(Hours::AM(3), convert(false, Hours::H24(3)).unwrap());
         assert_eq!(Hours::PM(11), convert(false, Hours::H24(23)).unwrap());
         assert_eq!(Hours::PM(3), convert(false, Hours::H24(15)).unwrap());
+        assert_eq!(Hours::PM(12), convert(false, Hours::H24(12)).unwrap());
     }
 }
 
