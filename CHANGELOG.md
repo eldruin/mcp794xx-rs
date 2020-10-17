@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-...
+### Fixed
+- Error when converting hours between 24H mode and AM/PM. Thanks to @ppelleti.
 
 ## [0.2.0] - 2020-02-09
 ### Changed
