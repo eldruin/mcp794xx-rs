@@ -43,6 +43,14 @@ fn is_am(hours_data: u8) -> bool {
     hours_data & BitFlags::AM_PM == 0
 }
 
+fn cvt_0_to_12(x: u8) -> u8 {
+    if x == 0 { 12 } else { x }
+}
+
+fn cvt_12_to_0(x: u8) -> u8 {
+    if x == 12 { 0 } else { x }
+}
+
 pub(crate) fn convert_hours_to_format<E>(
     is_running_in_24h_mode: bool,
     hours: Hours,
@@ -52,16 +60,16 @@ pub(crate) fn convert_hours_to_format<E>(
         Hours::H24(h) => {
             if is_running_in_24h_mode {
                 Ok(hours)
-            } else if h > 12 {
-                Ok(Hours::PM(h - 12))
+            } else if h >= 12 {
+                Ok(Hours::PM(cvt_0_to_12(h - 12)))
             } else {
-                Ok(Hours::AM(h))
+                Ok(Hours::AM(cvt_0_to_12(h)))
             }
         }
         Hours::AM(h) if h < 1 || h > 12 => Err(Error::InvalidInputData),
         Hours::AM(h) => {
             if is_running_in_24h_mode {
-                Ok(Hours::H24(h))
+                Ok(Hours::H24(cvt_12_to_0(h)))
             } else {
                 Ok(hours)
             }
@@ -69,7 +77,7 @@ pub(crate) fn convert_hours_to_format<E>(
         Hours::PM(h) if h < 1 || h > 12 => Err(Error::InvalidInputData),
         Hours::PM(h) => {
             if is_running_in_24h_mode {
-                Ok(Hours::H24(h + 12))
+                Ok(Hours::H24(cvt_12_to_0(h) + 12))
             } else {
                 Ok(hours)
             }
@@ -94,18 +102,22 @@ mod hours_conversion_tests {
 
     #[test]
     fn can_convert_12h_to_h24() {
+        assert_eq!(Hours::H24(0), convert(true, Hours::AM(12)).unwrap());
         assert_eq!(Hours::H24(11), convert(true, Hours::AM(11)).unwrap());
         assert_eq!(Hours::H24(3), convert(true, Hours::AM(3)).unwrap());
         assert_eq!(Hours::H24(23), convert(true, Hours::PM(11)).unwrap());
         assert_eq!(Hours::H24(15), convert(true, Hours::PM(3)).unwrap());
+        assert_eq!(Hours::H24(12), convert(true, Hours::PM(12)).unwrap());
     }
 
     #[test]
     fn can_convert_h24_to_12h() {
+        assert_eq!(Hours::AM(12), convert(false, Hours::H24(0)).unwrap());
         assert_eq!(Hours::AM(11), convert(false, Hours::H24(11)).unwrap());
         assert_eq!(Hours::AM(3), convert(false, Hours::H24(3)).unwrap());
         assert_eq!(Hours::PM(11), convert(false, Hours::H24(23)).unwrap());
         assert_eq!(Hours::PM(3), convert(false, Hours::H24(15)).unwrap());
+        assert_eq!(Hours::PM(12), convert(false, Hours::H24(12)).unwrap());
     }
 }
 
