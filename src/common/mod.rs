@@ -40,7 +40,7 @@ where
     }
 
     /// Returns whether the oscillator is running.
-    #[allow(clippy::wrong_self_convention)] 
+    #[allow(clippy::wrong_self_convention)]
     pub fn is_oscillator_running(&mut self) -> Result<bool, Error<E>> {
         let data = self.iface.read_register(Register::WEEKDAY)?;
         Ok((data & BitFlags::OSCRUN) != 0)

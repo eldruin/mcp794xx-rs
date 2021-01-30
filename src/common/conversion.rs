@@ -44,11 +44,19 @@ fn is_am(hours_data: u8) -> bool {
 }
 
 fn cvt_0_to_12(x: u8) -> u8 {
-    if x == 0 { 12 } else { x }
+    if x == 0 {
+        12
+    } else {
+        x
+    }
 }
 
 fn cvt_12_to_0(x: u8) -> u8 {
-    if x == 12 { 0 } else { x }
+    if x == 12 {
+        0
+    } else {
+        x
+    }
 }
 
 pub(crate) fn convert_hours_to_format<E>(
