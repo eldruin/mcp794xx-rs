@@ -1,5 +1,5 @@
-use mcp794xx::{ic, interface, Mcp794xx};
 use embedded_hal_mock::i2c::{Mock as I2cMock, Transaction as I2cTrans};
+use mcp794xx::{ic, interface, Mcp794xx};
 
 #[allow(unused)]
 pub const DEVICE_ADDRESS: u8 = 0b1101111;
