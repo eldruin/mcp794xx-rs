@@ -334,9 +334,8 @@
 #![deny(unsafe_code, missing_docs)]
 #![no_std]
 
-extern crate embedded_hal as hal;
-extern crate rtcc;
 use core::marker::PhantomData;
+use embedded_hal::blocking::i2c;
 pub use rtcc::{Datelike, Hours, NaiveDate, NaiveDateTime, NaiveTime, Rtcc, Timelike};
 
 /// Feature markers
@@ -469,7 +468,7 @@ macro_rules! create_destroy_i2c {
     ($ic:ident, $create:ident) => {
         impl<I2C, E> Mcp794xx<I2cInterface<I2C>, ic::$ic>
         where
-            I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E>,
+            I2C: i2c::Write<Error = E> + i2c::WriteRead<Error = E>,
         {
             /// Create a new instance of the device.
             pub fn $create(i2c: I2C) -> Self {

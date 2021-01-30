@@ -1,6 +1,6 @@
 //! Communication interface
-use super::{private, Error, DEVICE_ADDRESS, EEPROM_ADDRESS};
-use crate::hal::blocking;
+use crate::{private, Error, DEVICE_ADDRESS, EEPROM_ADDRESS};
+use embedded_hal::blocking;
 
 /// I2C interface
 #[derive(Debug, Default)]

@@ -1,6 +1,4 @@
-extern crate embedded_hal_mock as hal;
-use crate::hal::i2c::Transaction as I2cTrans;
-extern crate mcp794xx;
+use embedded_hal_mock::i2c::Transaction as I2cTrans;
 use mcp794xx::{Hours, PowerFailDateTime};
 mod common;
 use crate::common::{

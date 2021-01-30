@@ -1,8 +1,5 @@
-extern crate embedded_hal;
-extern crate mcp794xx;
-use self::mcp794xx::{ic, interface, Mcp794xx};
-extern crate embedded_hal_mock as hal;
-use self::hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
+use mcp794xx::{ic, interface, Mcp794xx};
+use embedded_hal_mock::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 
 #[allow(unused)]
 pub const DEVICE_ADDRESS: u8 = 0b1101111;
