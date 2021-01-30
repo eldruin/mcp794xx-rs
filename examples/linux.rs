@@ -1,7 +1,3 @@
-extern crate embedded_hal;
-extern crate linux_embedded_hal;
-extern crate mcp794xx;
-
 use linux_embedded_hal::I2cdev;
 use mcp794xx::{Mcp794xx, NaiveDate, Rtcc};
 

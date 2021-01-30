@@ -89,10 +89,6 @@ Please find additional examples using hardware in this repository: [driver-examp
 [driver-examples]: https://github.com/eldruin/driver-examples
 
 ```rust
-extern crate embedded_hal;
-extern crate linux_embedded_hal;
-extern crate mcp794xx;
-
 use linux_embedded_hal::I2cdev;
 use mcp794xx::{NaiveDate, Hours, Mcp794xx, Rtcc};
 
