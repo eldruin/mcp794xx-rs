@@ -241,6 +241,7 @@ where
     DI: interface::ReadData<Error = Error<E>>,
 {
     /// Returns whether the current year is a leap year.
+    #[allow(clippy::wrong_self_convention)] 
     pub fn is_leap_year(&mut self) -> Result<bool, Error<E>> {
         let data = self.iface.read_register(Register::MONTH)?;
         Ok((data & BitFlags::LEAPYEAR) != 0)

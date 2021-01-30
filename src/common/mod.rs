@@ -40,6 +40,7 @@ where
     }
 
     /// Returns whether the oscillator is running.
+    #[allow(clippy::wrong_self_convention)] 
     pub fn is_oscillator_running(&mut self) -> Result<bool, Error<E>> {
         let data = self.iface.read_register(Register::WEEKDAY)?;
         Ok((data & BitFlags::OSCRUN) != 0)
@@ -131,6 +132,7 @@ where
         Ok(())
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn check_lt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {
         if value < reference {
             Ok(())
@@ -139,6 +141,7 @@ where
         }
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn check_gt<T: PartialOrd>(value: T, reference: T) -> Result<(), Error<E>> {
         if value > reference {
             Ok(())
