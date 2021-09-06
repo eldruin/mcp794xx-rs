@@ -27,7 +27,7 @@ where
         payload: &mut [u8],
     ) -> Result<(), Error<E>> {
         self.i2c
-            .write_read(device_address, &[address], &mut payload[..])
+            .write_read(device_address, &[address], payload)
             .map_err(Error::Comm)
     }
 }
@@ -37,9 +37,7 @@ where
     I2C: blocking::i2c::Write<Error = E>,
 {
     fn write_data(&mut self, device_address: u8, payload: &[u8]) -> Result<(), Error<E>> {
-        self.i2c
-            .write(device_address, &payload)
-            .map_err(Error::Comm)
+        self.i2c.write(device_address, payload).map_err(Error::Comm)
     }
 }
 
@@ -81,7 +79,7 @@ where
     }
 
     fn write_data(&mut self, payload: &[u8]) -> Result<(), Self::Error> {
-        self.write_data(DEVICE_ADDRESS, &payload)
+        self.write_data(DEVICE_ADDRESS, payload)
     }
 
     fn write_eeprom_byte(&mut self, address: u8, data: u8) -> Result<(), Self::Error> {
@@ -89,7 +87,7 @@ where
     }
 
     fn write_eeprom_data(&mut self, payload: &[u8]) -> Result<(), Self::Error> {
-        self.write_data(EEPROM_ADDRESS, &payload)
+        self.write_data(EEPROM_ADDRESS, payload)
     }
 }
 
@@ -128,7 +126,7 @@ where
     }
 
     fn read_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error> {
-        self.read_data(DEVICE_ADDRESS, address, &mut payload[..])
+        self.read_data(DEVICE_ADDRESS, address, payload)
     }
 
     fn read_eeprom_byte(&mut self, register: u8) -> Result<u8, Self::Error> {
@@ -136,7 +134,7 @@ where
     }
 
     fn read_eeprom_data(&mut self, address: u8, payload: &mut [u8]) -> Result<(), Self::Error> {
-        self.read_data(EEPROM_ADDRESS, address, &mut payload[..])
+        self.read_data(EEPROM_ADDRESS, address, payload)
     }
 }
 

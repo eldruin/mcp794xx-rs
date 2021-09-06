@@ -10,7 +10,7 @@ where
     /// Valid addresses are from 0x20 to 0x5F. Otherwise an
     /// Error::InvalidInputData will be returned.
     pub fn read_sram_byte(&mut self, address: u8) -> Result<u8, Error<E>> {
-        if address < 0x20 || address > 0x5F {
+        if !Self::address_valid(address) {
             return Err(Error::InvalidInputData);
         }
         self.iface.read_register(address)
@@ -21,7 +21,7 @@ where
     /// Valid addresses are from 0x20 to 0x5F. Otherwise an
     /// Error::InvalidInputData will be returned.
     pub fn write_sram_byte(&mut self, address: u8, data: u8) -> Result<(), Error<E>> {
-        if address < 0x20 || address > 0x5F {
+        if !Self::address_valid(address) {
             return Err(Error::InvalidInputData);
         }
         self.iface.write_register(address, data)
@@ -30,11 +30,7 @@ where
     /// Read SRAM starting in an address as many bytes as necessary to fill
     /// the data array provided.
     pub fn read_sram_data(&mut self, address: u8, data: &mut [u8]) -> Result<(), Error<E>> {
-        if address < 0x20
-            || address > 0x5F
-            || data.len() > 64
-            || (data.len() as u8 + address) > 0x60
-        {
+        if !Self::address_valid(address) || data.len() > 64 || (data.len() as u8 + address) > 0x60 {
             return Err(Error::InvalidInputData);
         }
         self.iface.read_data(address, data)
@@ -42,17 +38,18 @@ where
 
     /// Write data array to SRAM starting in an address.
     pub fn write_sram_data(&mut self, address: u8, data: &[u8]) -> Result<(), Error<E>> {
-        if address < 0x20
-            || address > 0x5F
-            || data.len() > 64
-            || (data.len() as u8 + address) > 0x60
-        {
+        if !Self::address_valid(address) || data.len() > 64 || (data.len() as u8 + address) > 0x60 {
             return Err(Error::InvalidInputData);
         }
         let mut payload = [0; 65]; // max size
         payload[0] = address;
-        payload[1..=data.len()].copy_from_slice(&data);
+        payload[1..=data.len()].copy_from_slice(data);
         self.iface.write_data(&payload[..=data.len()])
+    }
+
+    #[allow(clippy::manual_range_contains)]
+    fn address_valid(address: u8) -> bool {
+        address >= 0x20 && address <= 0x5F
     }
 }
 

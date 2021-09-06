@@ -10,6 +10,7 @@ pub(crate) fn packed_bcd_to_decimal(bcd: u8) -> u8 {
     (bcd >> 4) * 10 + (bcd & 0xF)
 }
 
+#[allow(clippy::manual_range_contains)]
 pub(crate) fn hours_to_register<E>(hours: Hours) -> Result<u8, Error<E>> {
     match hours {
         Hours::H24(h) if h > 23 => Err(Error::InvalidInputData),
@@ -59,6 +60,7 @@ fn cvt_12_to_0(x: u8) -> u8 {
     }
 }
 
+#[allow(clippy::manual_range_contains)]
 pub(crate) fn convert_hours_to_format<E>(
     is_running_in_24h_mode: bool,
     hours: Hours,

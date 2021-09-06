@@ -99,6 +99,7 @@ where
         self.iface.write_register(Register::MINUTES, minutes)
     }
 
+    #[allow(clippy::match_like_matches_macro)] // not available on the MSRV
     fn set_hours(&mut self, hours: Hours) -> Result<(), Self::Error> {
         let value = hours_to_register(hours)?;
         self.iface.write_register(Register::HOURS, value)?;

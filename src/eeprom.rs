@@ -70,13 +70,14 @@ where
         }
         let mut payload = [0; 9]; // max size
         payload[0] = address;
-        payload[1..=data.len()].copy_from_slice(&data);
+        payload[1..=data.len()].copy_from_slice(data);
         self.iface.write_register(EEUNLOCK, 0x55)?;
         self.iface.write_register(EEUNLOCK, 0xAA)?;
         self.iface.write_eeprom_data(&payload[..=data.len()])
     }
 }
 
+#[allow(clippy::manual_range_contains)]
 fn is_protected_eeprom_address(address: u8) -> bool {
     address >= 0xF0 && address <= 0xF7
 }
@@ -147,7 +148,7 @@ where
         if is_eeprom_address(address) && data.len() <= 128 && (address + data.len() as u8) < 0x80 {
             let mut payload = [0; 128]; // max size
             payload[0] = address;
-            payload[1..=data.len()].copy_from_slice(&data);
+            payload[1..=data.len()].copy_from_slice(data);
             self.iface.write_eeprom_data(&payload[..=data.len()])
         } else {
             Err(Error::InvalidInputData)
