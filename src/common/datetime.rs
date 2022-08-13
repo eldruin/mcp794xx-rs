@@ -1,37 +1,96 @@
 //! Common date/time function
 
-use super::super::{
-    BitFlags, Datelike, Error, Hours, Mcp794xx, NaiveDate, NaiveDateTime, NaiveTime, Register,
-    Rtcc, Timelike,
-};
 use super::conversion::{
     decimal_to_packed_bcd, hours_from_register, hours_to_register, packed_bcd_to_decimal,
 };
-use crate::interface;
+use crate::{
+    interface, BitFlags, DateTimeAccess, Datelike, Error, Hours, Mcp794xx, NaiveDate,
+    NaiveDateTime, NaiveTime, Register, Rtcc, Timelike,
+};
 
-impl<DI, E, IC> Rtcc for Mcp794xx<DI, IC>
+impl<DI, E, IC> DateTimeAccess for Mcp794xx<DI, IC>
 where
     DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
 {
     type Error = Error<E>;
 
-    fn get_seconds(&mut self) -> Result<u8, Self::Error> {
+    /// This device can compensate for leap years up to 2399
+    /// but only the two last year digits are stored so we will return
+    /// the year as in the range 2000-2099.
+    fn datetime(&mut self) -> Result<NaiveDateTime, Self::Error> {
+        let mut data = [0; 7];
+        self.iface.read_data(0, &mut data)?;
+        let year = 2000 + u16::from(packed_bcd_to_decimal(data[Register::YEAR as usize]));
+        let month = packed_bcd_to_decimal(data[Register::MONTH as usize] & !BitFlags::LEAPYEAR);
+        let day = packed_bcd_to_decimal(data[Register::DAY as usize]);
+        let hour = hours_from_register(data[Register::HOURS as usize]);
+        let minute = packed_bcd_to_decimal(data[Register::MINUTES as usize]);
+        let second = packed_bcd_to_decimal(data[Register::SECONDS as usize] & !BitFlags::ST);
+        let h24 = match hour {
+            Hours::H24(h) => h,
+            Hours::AM(h) => h,
+            Hours::PM(h) => h + 12,
+        };
+        Ok(
+            NaiveDate::from_ymd(year.into(), month.into(), day.into()).and_hms(
+                h24.into(),
+                minute.into(),
+                second.into(),
+            ),
+        )
+    }
+
+    /// Note that this clears the power failed flag.
+    /// This device can compensate for leap years up to 2399
+    /// but only the two last year digits are stored so we only
+    /// support the range 2000-2099.
+    fn set_datetime(&mut self, datetime: &NaiveDateTime) -> Result<(), Self::Error> {
+        if datetime.year() < 2000 || datetime.year() > 2099 {
+            return Err(Error::InvalidInputData);
+        }
+        let second = decimal_to_packed_bcd(datetime.second() as u8);
+        let second = if self.is_enabled {
+            second | BitFlags::ST
+        } else {
+            second
+        };
+        let payload = [
+            Register::SECONDS,
+            second,
+            decimal_to_packed_bcd(datetime.minute() as u8),
+            hours_to_register(Hours::H24(datetime.hour() as u8))?,
+            datetime.weekday().number_from_sunday() as u8,
+            decimal_to_packed_bcd(datetime.day() as u8),
+            decimal_to_packed_bcd(datetime.month() as u8),
+            decimal_to_packed_bcd((datetime.year() - 2000) as u8),
+        ];
+        self.iface.write_data(&payload)?;
+        self.is_running_in_24h_mode = true;
+        Ok(())
+    }
+}
+
+impl<DI, E, IC> Rtcc for Mcp794xx<DI, IC>
+where
+    DI: interface::WriteData<Error = Error<E>> + interface::ReadData<Error = Error<E>>,
+{
+    fn seconds(&mut self) -> Result<u8, Self::Error> {
         let seconds = self.iface.read_register(Register::SECONDS)?;
         let seconds = packed_bcd_to_decimal(seconds & !BitFlags::ST);
         Ok(seconds)
     }
 
-    fn get_minutes(&mut self) -> Result<u8, Self::Error> {
+    fn minutes(&mut self) -> Result<u8, Self::Error> {
         let minutes = self.iface.read_register(Register::MINUTES)?;
         Ok(packed_bcd_to_decimal(minutes))
     }
 
-    fn get_hours(&mut self) -> Result<Hours, Self::Error> {
+    fn hours(&mut self) -> Result<Hours, Self::Error> {
         let data = self.iface.read_register(Register::HOURS)?;
         Ok(hours_from_register(data))
     }
 
-    fn get_time(&mut self) -> Result<NaiveTime, Self::Error> {
+    fn time(&mut self) -> Result<NaiveTime, Self::Error> {
         let mut data = [0; 3];
         self.iface.read_data(0, &mut data)?;
         let hour = hours_from_register(data[Register::HOURS as usize]);
@@ -49,18 +108,18 @@ where
         ))
     }
 
-    fn get_weekday(&mut self) -> Result<u8, Self::Error> {
+    fn weekday(&mut self) -> Result<u8, Self::Error> {
         let data = self.iface.read_register(Register::WEEKDAY)?;
         let weekday = packed_bcd_to_decimal(data & 0b111);
         Ok(weekday)
     }
 
-    fn get_day(&mut self) -> Result<u8, Self::Error> {
+    fn day(&mut self) -> Result<u8, Self::Error> {
         let day = self.iface.read_register(Register::DAY)?;
         Ok(packed_bcd_to_decimal(day))
     }
 
-    fn get_month(&mut self) -> Result<u8, Self::Error> {
+    fn month(&mut self) -> Result<u8, Self::Error> {
         let value = self.iface.read_register(Register::MONTH)?;
         Ok(packed_bcd_to_decimal(value & !BitFlags::LEAPYEAR))
     }
@@ -68,12 +127,12 @@ where
     /// This device can compensate for leap years up to 2399
     /// but only the two last year digits are stored so we will return
     /// the year as in the range 2000-2099.
-    fn get_year(&mut self) -> Result<u16, Self::Error> {
+    fn year(&mut self) -> Result<u16, Self::Error> {
         let value = self.iface.read_register(Register::YEAR)?;
         Ok(2000 + u16::from(packed_bcd_to_decimal(value)))
     }
 
-    fn get_date(&mut self) -> Result<NaiveDate, Self::Error> {
+    fn date(&mut self) -> Result<NaiveDate, Self::Error> {
         let mut data = [0; 3];
         self.iface.read_data(Register::DAY, &mut data)?;
         let year = 2000 + u16::from(packed_bcd_to_decimal(data[2]));
@@ -167,32 +226,6 @@ where
         self.iface.write_register(Register::YEAR, value)
     }
 
-    /// This device can compensate for leap years up to 2399
-    /// but only the two last year digits are stored so we will return
-    /// the year as in the range 2000-2099.
-    fn get_datetime(&mut self) -> Result<NaiveDateTime, Self::Error> {
-        let mut data = [0; 7];
-        self.iface.read_data(0, &mut data)?;
-        let year = 2000 + u16::from(packed_bcd_to_decimal(data[Register::YEAR as usize]));
-        let month = packed_bcd_to_decimal(data[Register::MONTH as usize] & !BitFlags::LEAPYEAR);
-        let day = packed_bcd_to_decimal(data[Register::DAY as usize]);
-        let hour = hours_from_register(data[Register::HOURS as usize]);
-        let minute = packed_bcd_to_decimal(data[Register::MINUTES as usize]);
-        let second = packed_bcd_to_decimal(data[Register::SECONDS as usize] & !BitFlags::ST);
-        let h24 = match hour {
-            Hours::H24(h) => h,
-            Hours::AM(h) => h,
-            Hours::PM(h) => h + 12,
-        };
-        Ok(
-            NaiveDate::from_ymd(year.into(), month.into(), day.into()).and_hms(
-                h24.into(),
-                minute.into(),
-                second.into(),
-            ),
-        )
-    }
-
     fn set_date(&mut self, date: &NaiveDate) -> Result<(), Self::Error> {
         if date.year() < 2000 || date.year() > 2099 {
             return Err(Error::InvalidInputData);
@@ -205,35 +238,6 @@ where
             decimal_to_packed_bcd((date.year() - 2000) as u8),
         ];
         self.iface.write_data(&payload)
-    }
-
-    /// Note that this clears the power failed flag.
-    /// This device can compensate for leap years up to 2399
-    /// but only the two last year digits are stored so we only
-    /// support the range 2000-2099.
-    fn set_datetime(&mut self, datetime: &NaiveDateTime) -> Result<(), Self::Error> {
-        if datetime.year() < 2000 || datetime.year() > 2099 {
-            return Err(Error::InvalidInputData);
-        }
-        let second = decimal_to_packed_bcd(datetime.second() as u8);
-        let second = if self.is_enabled {
-            second | BitFlags::ST
-        } else {
-            second
-        };
-        let payload = [
-            Register::SECONDS,
-            second,
-            decimal_to_packed_bcd(datetime.minute() as u8),
-            hours_to_register(Hours::H24(datetime.hour() as u8))?,
-            datetime.weekday().number_from_sunday() as u8,
-            decimal_to_packed_bcd(datetime.day() as u8),
-            decimal_to_packed_bcd(datetime.month() as u8),
-            decimal_to_packed_bcd((datetime.year() - 2000) as u8),
-        ];
-        self.iface.write_data(&payload)?;
-        self.is_running_in_24h_mode = true;
-        Ok(())
     }
 }
 

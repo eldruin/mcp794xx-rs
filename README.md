@@ -11,10 +11,10 @@ This is a platform agnostic Rust driver for the MCP794xx real-time clock
 [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 
 This driver allows you to:
-  - Read and set date and time. See: `get_datetime()`.
-  - Read and set date. See: `get_date()`.
-  - Read and set time. See: `get_time()`.
-  - Read and set date and time individual elements. For example, see: `get_year()`.
+  - Read and set date and time. See: `datetime()`.
+  - Read and set date. See: `date()`.
+  - Read and set time. See: `time()`.
+  - Read and set date and time individual elements. For example, see: `year()`.
   - Enable and disable the real-time clock. See: `enable()`.
   - Read whether the oscillator is running. See: `is_oscillator_running()`.
   - Read whether the current year is a leap year. See: `is_leap_year()`.
@@ -90,7 +90,7 @@ Please find additional examples using hardware in this repository: [driver-examp
 
 ```rust
 use linux_embedded_hal::I2cdev;
-use mcp794xx::{NaiveDate, Hours, Mcp794xx, Rtcc};
+use mcp794xx::{DateTimeAccess, Mcp794xx, NaiveDate, Rtcc};
 
 fn main() {
     let dev = I2cdev::new("/dev/i2c-1").unwrap();
@@ -100,7 +100,7 @@ fn main() {
     rtc.set_datetime(&datetime).unwrap();
     rtc.enable().unwrap();
     // do something else...
-    let seconds = rtc.get_seconds().unwrap();
+    let seconds = rtc.seconds().unwrap();
     println!("Seconds: {}", seconds);
 
     let _dev = rtc.destroy();
@@ -128,4 +128,3 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
-

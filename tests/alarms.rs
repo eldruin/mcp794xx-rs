@@ -7,7 +7,8 @@ use crate::common::{
     DEVICE_ADDRESS as DEV_ADDR,
 };
 use mcp794xx::{
-    Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity, Error, Hours, NaiveDate, Rtcc,
+    Alarm, AlarmDateTime, AlarmMatching, AlarmOutputPinPolarity, DateTimeAccess, Error, Hours,
+    NaiveDate,
 };
 
 macro_rules! invalid_dt_test {

@@ -4,10 +4,10 @@
 //! [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 //!
 //! This driver allows you to:
-//! - Read and set date and time. See: [`get_datetime()`].
-//! - Read and set date. See: [`get_date()`].
-//! - Read and set time. See: [`get_time()`].
-//! - Read and set date and time individual elements. For example, see: [`get_year()`].
+//! - Read and set date and time. See: [`datetime()`].
+//! - Read and set date. See: [`date()`].
+//! - Read and set time. See: [`time()`].
+//! - Read and set date and time individual elements. For example, see: [`year()`].
 //! - Enable and disable the real-time clock. See: [`enable()`].
 //! - Read whether the oscillator is running. See: [`is_oscillator_running()`].
 //! - Read whether the current year is a leap year. See: [`is_leap_year()`].
@@ -44,10 +44,10 @@
 //!     - Set EEPROM block write protection. See: [`set_eeprom_write_protection()`].
 //!     - Read current position from the EEPROM. See: [`read_eeprom_current_byte()`].
 //!
-//! [`get_datetime()`]: struct.Mcp794xx.html#method.get_datetime
-//! [`get_date()`]: struct.Mcp794xx.html#method.get_date
-//! [`get_time()`]: struct.Mcp794xx.html#method.get_time
-//! [`get_year()`]: struct.Mcp794xx.html#method.get_year
+//! [`datetime()`]: struct.Mcp794xx.html#method.datetime
+//! [`date()`]: struct.Mcp794xx.html#method.date
+//! [`time()`]: struct.Mcp794xx.html#method.time
+//! [`year()`]: struct.Mcp794xx.html#method.year
 //! [`enable()`]: struct.Mcp794xx.html#method.enable
 //! [`is_oscillator_running()`]: struct.Mcp794xx.html#method.is_oscillator_running
 //! [`is_leap_year()`]: struct.Mcp794xx.html#method.is_leap_year
@@ -147,7 +147,7 @@
 //!
 //! ```no_run
 //! use linux_embedded_hal::I2cdev;
-//! use mcp794xx::{Mcp794xx, NaiveDate, Hours, Rtcc};
+//! use mcp794xx::{Mcp794xx, NaiveDate, Hours, DateTimeAccess};
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut rtc = Mcp794xx::new_mcp7940n(dev);
@@ -163,7 +163,7 @@
 //!
 //! ```no_run
 //! use linux_embedded_hal::I2cdev;
-//! use mcp794xx::{Mcp794xx, NaiveDate, Hours, Rtcc};
+//! use mcp794xx::{Mcp794xx, NaiveDate, Hours, DateTimeAccess};
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut rtc = Mcp794xx::new_mcp7940n(dev);
@@ -186,12 +186,12 @@
 //!
 //! ```no_run
 //! use linux_embedded_hal::I2cdev;
-//! use mcp794xx::{Mcp794xx, Rtcc, Datelike, Timelike};
+//! use mcp794xx::{Mcp794xx, DateTimeAccess, Datelike, Timelike};
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut rtc = Mcp794xx::new_mcp7940n(dev);
 //!
-//! let dt = rtc.get_datetime().unwrap();
+//! let dt = rtc.datetime().unwrap();
 //! println!("{}-{}-{}, {} {}:{}:{}", dt.year(),
 //!          dt.month(), dt.day(), dt.weekday().number_from_sunday(),
 //!          dt.hour(), dt.minute(), dt.second());
@@ -207,7 +207,7 @@
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut rtc = Mcp794xx::new_mcp7940n(dev);
 //! rtc.set_year(2019).unwrap();
-//! let year = rtc.get_year().unwrap();
+//! let year = rtc.year().unwrap();
 //! println!("Year: {}", year);
 //! ```
 //! Similar methods exist for month, day, weekday, hours, minutes and seconds.
@@ -337,7 +337,9 @@
 
 use core::marker::PhantomData;
 use embedded_hal::blocking::i2c;
-pub use rtcc::{Datelike, Hours, NaiveDate, NaiveDateTime, NaiveTime, Rtcc, Timelike};
+pub use rtcc::{
+    DateTimeAccess, Datelike, Hours, NaiveDate, NaiveDateTime, NaiveTime, Rtcc, Timelike,
+};
 
 /// Feature markers
 pub mod marker {

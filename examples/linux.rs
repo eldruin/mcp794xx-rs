@@ -1,5 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use mcp794xx::{Mcp794xx, NaiveDate, Rtcc};
+use mcp794xx::{DateTimeAccess, Mcp794xx, NaiveDate, Rtcc};
 
 fn main() {
     let dev = I2cdev::new("/dev/i2c-1").unwrap();
@@ -9,7 +9,7 @@ fn main() {
     rtc.set_datetime(&datetime).unwrap();
     rtc.enable().unwrap();
     // do something else...
-    let seconds = rtc.get_seconds().unwrap();
+    let seconds = rtc.seconds().unwrap();
     println!("Seconds: {}", seconds);
 
     let _dev = rtc.destroy();
