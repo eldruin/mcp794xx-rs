@@ -11,7 +11,7 @@ pub enum Error<E> {
 }
 
 /// Square-wave output frequency
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SqWFreq {
     /// 1 Hz (default)
     Hz1,
@@ -24,7 +24,7 @@ pub enum SqWFreq {
 }
 
 /// General purpose output pin logic level
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OutputPinLevel {
     /// High
     High,
@@ -33,7 +33,7 @@ pub enum OutputPinLevel {
 }
 
 /// Alarm interrupt output pin polarity
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AlarmOutputPinPolarity {
     /// High logic level when alarm asserted
     High,
@@ -42,7 +42,7 @@ pub enum AlarmOutputPinPolarity {
 }
 
 /// Alarm trigger rate
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AlarmMatching {
     /// Alarm triggers when seconds match.
     SecondsMatch,
@@ -59,7 +59,7 @@ pub enum AlarmMatching {
 }
 
 /// Alarm selection
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Alarm {
     /// Alarm 0
     Zero,
@@ -100,7 +100,7 @@ pub struct PowerFailDateTime {
 }
 
 /// EEPROM block write protection
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EepromWriteProtection {
     /// None of the addresses is write-protected (default)
     None,
