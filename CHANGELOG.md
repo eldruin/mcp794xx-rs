@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.0] - 2022-08-16
+
 ### Added
 - Implement `Eq` for suitable types.
 
@@ -41,7 +43,8 @@ This is the initial release to crates.io of the feature-complete driver. There
 may be some API changes in the future. All changes will be documented in this
 CHANGELOG.
 
-[Unreleased]: https://github.com/eldruin/mcp794xx-rs/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/eldruin/mcp794xx-rs/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/eldruin/mcp794xx-rs/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/eldruin/mcp794xx-rs/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/eldruin/mcp794xx-rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/eldruin/mcp794xx-rs/releases/tag/v0.1.0

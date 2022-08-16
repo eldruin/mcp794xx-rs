@@ -331,7 +331,6 @@
 //! ```
 //!
 
-#![doc(html_root_url = "https://docs.rs/mcp794xx/0.2.1")]
 #![deny(unsafe_code, missing_docs)]
 #![no_std]
 
