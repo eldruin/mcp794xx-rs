@@ -1,4 +1,4 @@
-use embedded_hal_mock::i2c::Transaction as I2cTrans;
+use embedded_hal_mock::eh1::i2c::Transaction as I2cTrans;
 use mcp794xx::{EepromWriteProtection, Error};
 mod common;
 use crate::common::{

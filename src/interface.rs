@@ -1,6 +1,6 @@
 //! Communication interface
 use crate::{private, Error, DEVICE_ADDRESS, EEPROM_ADDRESS};
-use embedded_hal::blocking;
+use embedded_hal::i2c;
 
 /// I2C interface
 #[derive(Debug, Default)]
@@ -10,7 +10,7 @@ pub struct I2cInterface<I2C> {
 
 impl<I2C, E> I2cInterface<I2C>
 where
-    I2C: blocking::i2c::WriteRead<Error = E>,
+    I2C: i2c::I2c<Error = E>, // I2C: i2c::WriteRead<Error = E>,
 {
     fn read_byte(&mut self, device_address: u8, address: u8) -> Result<u8, Error<E>> {
         let mut data = [0];
@@ -34,7 +34,7 @@ where
 
 impl<I2C, E> I2cInterface<I2C>
 where
-    I2C: blocking::i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     fn write_data(&mut self, device_address: u8, payload: &[u8]) -> Result<(), Error<E>> {
         self.i2c.write(device_address, payload).map_err(Error::Comm)
@@ -43,7 +43,7 @@ where
 
 impl<I2C, E> I2cInterface<I2C>
 where
-    I2C: blocking::i2c::Read<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     fn read(&mut self, device_address: u8) -> Result<u8, Error<E>> {
         let mut data = [0];
@@ -70,7 +70,7 @@ pub trait WriteData: private::Sealed {
 
 impl<I2C, E> WriteData for I2cInterface<I2C>
 where
-    I2C: blocking::i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     type Error = Error<E>;
 
@@ -117,7 +117,7 @@ pub trait ReadCurrent: private::Sealed {
 
 impl<I2C, E> ReadData for I2cInterface<I2C>
 where
-    I2C: blocking::i2c::WriteRead<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     type Error = Error<E>;
 
@@ -140,7 +140,7 @@ where
 
 impl<I2C, E> ReadCurrent for I2cInterface<I2C>
 where
-    I2C: blocking::i2c::Read<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     type Error = Error<E>;
 

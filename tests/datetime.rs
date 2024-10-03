@@ -1,4 +1,4 @@
-use embedded_hal_mock::i2c::Transaction as I2cTrans;
+use embedded_hal_mock::eh1::i2c::Transaction as I2cTrans;
 mod common;
 use crate::common::{
     destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp7940m, destroy_mcp7940n,
