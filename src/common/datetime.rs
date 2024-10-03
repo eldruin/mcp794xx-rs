@@ -32,11 +32,10 @@ where
             Hours::PM(h) => h + 12,
         };
         Ok(
-            NaiveDate::from_ymd(year.into(), month.into(), day.into()).and_hms(
-                h24.into(),
-                minute.into(),
-                second.into(),
-            ),
+            NaiveDate::from_ymd_opt(year.into(), month.into(), day.into())
+                .expect("Invalid date.")
+                .and_hms_opt(h24.into(), minute.into(), second.into())
+                .expect("Invalid time."),
         )
     }
 
@@ -101,11 +100,10 @@ where
             Hours::AM(h) => h,
             Hours::PM(h) => h + 12,
         };
-        Ok(NaiveTime::from_hms(
-            h24.into(),
-            minute.into(),
-            second.into(),
-        ))
+        Ok(
+            NaiveTime::from_hms_opt(h24.into(), minute.into(), second.into())
+                .expect("Invalid date."),
+        )
     }
 
     fn weekday(&mut self) -> Result<u8, Self::Error> {
@@ -138,7 +136,7 @@ where
         let year = 2000 + u16::from(packed_bcd_to_decimal(data[2]));
         let month = packed_bcd_to_decimal(data[1] & !BitFlags::LEAPYEAR);
         let day = packed_bcd_to_decimal(data[0]);
-        Ok(NaiveDate::from_ymd(year.into(), month.into(), day.into()))
+        Ok(NaiveDate::from_ymd_opt(year.into(), month.into(), day.into()).expect("Invalid date."))
     }
 
     fn set_seconds(&mut self, seconds: u8) -> Result<(), Self::Error> {
