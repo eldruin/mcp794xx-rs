@@ -68,7 +68,7 @@ pub enum Alarm {
 }
 
 /// Alarm date/time
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AlarmDateTime {
     /// Month [1-12]
     pub month: u8,
@@ -85,7 +85,7 @@ pub struct AlarmDateTime {
 }
 
 /// Power fail date/time
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PowerFailDateTime {
     /// Month [1-12]
     pub month: u8,
