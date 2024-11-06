@@ -8,6 +8,10 @@ pub enum Error<E> {
     Comm(E),
     /// Invalid input data provided
     InvalidInputData,
+    /// Invalid output time provided h,m,s
+    InvalidTimeData(u32, u32, u32),
+    /// Invalid output date provided Y, M,D
+    InvalidDateData(u32, u32, u32),
 }
 
 /// Square-wave output frequency

@@ -31,12 +31,21 @@ where
             Hours::AM(h) => h,
             Hours::PM(h) => h + 12,
         };
-        Ok(
-            NaiveDate::from_ymd_opt(year.into(), month.into(), day.into())
-                .expect("Invalid date.")
-                .and_hms_opt(h24.into(), minute.into(), second.into())
-                .expect("Invalid time."),
-        )
+
+        if let Some(date) = NaiveDate::from_ymd_opt(year.into(), month.into(), day.into()) {
+            date.and_hms_opt(h24.into(), minute.into(), second.into())
+                .ok_or(Error::InvalidTimeData(
+                    h24.into(),
+                    minute.into(),
+                    second.into(),
+                ))
+        } else {
+            Err(Error::InvalidDateData(
+                year.into(),
+                month.into(),
+                day.into(),
+            ))
+        }
     }
 
     /// Note that this clears the power failed flag.
@@ -100,9 +109,8 @@ where
             Hours::AM(h) => h,
             Hours::PM(h) => h + 12,
         };
-        Ok(
-            NaiveTime::from_hms_opt(h24.into(), minute.into(), second.into())
-                .expect("Invalid date."),
+        NaiveTime::from_hms_opt(h24.into(), minute.into(), second.into()).ok_or(
+            Error::InvalidTimeData(h24.into(), minute.into(), second.into()),
         )
     }
 
@@ -136,7 +144,9 @@ where
         let year = 2000 + u16::from(packed_bcd_to_decimal(data[2]));
         let month = packed_bcd_to_decimal(data[1] & !BitFlags::LEAPYEAR);
         let day = packed_bcd_to_decimal(data[0]);
-        Ok(NaiveDate::from_ymd_opt(year.into(), month.into(), day.into()).expect("Invalid date."))
+        NaiveDate::from_ymd_opt(year.into(), month.into(), day.into()).ok_or(
+            Error::InvalidDateData(year.into(), month.into(), day.into()),
+        )
     }
 
     fn set_seconds(&mut self, seconds: u8) -> Result<(), Self::Error> {
