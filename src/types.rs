@@ -8,9 +8,9 @@ pub enum Error<E> {
     Comm(E),
     /// Invalid input data provided
     InvalidInputData,
-    /// Invalid output time provided h,m,s
+    /// Invalid time set in device: (hours, minutes, seconds)
     InvalidTimeData(u32, u32, u32),
-    /// Invalid output date provided Y, M,D
+    /// Invalid date set in device: (years, months, days)
     InvalidDateData(u32, u32, u32),
 }
 
