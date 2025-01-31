@@ -19,7 +19,7 @@ include = [
     "/LICENSE-APACHE",
 ]
 edition = "2021"
-rust-version = "1.77"
+rust-version = "1.75.0"
 
 [dependencies]
 embedded-hal = "1"
