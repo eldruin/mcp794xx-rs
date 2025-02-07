@@ -8,6 +8,10 @@ pub enum Error<E> {
     Comm(E),
     /// Invalid input data provided
     InvalidInputData,
+    /// Invalid time set in device: (hours, minutes, seconds)
+    InvalidTimeData(u32, u32, u32),
+    /// Invalid date set in device: (years, months, days)
+    InvalidDateData(u32, u32, u32),
 }
 
 /// Square-wave output frequency
@@ -68,7 +72,7 @@ pub enum Alarm {
 }
 
 /// Alarm date/time
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AlarmDateTime {
     /// Month [1-12]
     pub month: u8,
@@ -85,7 +89,7 @@ pub struct AlarmDateTime {
 }
 
 /// Power fail date/time
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PowerFailDateTime {
     /// Month [1-12]
     pub month: u8,

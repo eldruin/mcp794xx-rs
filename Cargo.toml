@@ -19,14 +19,15 @@ include = [
     "/LICENSE-APACHE",
 ]
 edition = "2021"
+rust-version = "1.75.0"
 
 [dependencies]
-embedded-hal = "0.2"
+embedded-hal = "1"
 rtcc = "0.3"
 
 [dev-dependencies]
-linux-embedded-hal = "0.3"
-embedded-hal-mock = "0.8"
+linux-embedded-hal = "0.4"
+embedded-hal-mock = { version = "0.11.1", default-features = false, features = ["eh1"] }
 
 [profile.release]
 lto = true

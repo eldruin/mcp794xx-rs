@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added 
+- Implement `Eq` for more suitable types.
+
+### Changed
+- [breaking-change] Updated to use embedded-hal v1.
+- Update usage of chrono::NaiveDate to use non-panic methods.
+- Updated MSRV to version 1.75.0.
+
 ## [0.3.0] - 2022-08-16
 
 ### Added

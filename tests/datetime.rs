@@ -1,4 +1,4 @@
-use embedded_hal_mock::i2c::Transaction as I2cTrans;
+use embedded_hal_mock::eh1::i2c::Transaction as I2cTrans;
 mod common;
 use crate::common::{
     destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp7940m, destroy_mcp7940n,
@@ -87,7 +87,7 @@ mod date {
         get,
         date,
         DAY,
-        NaiveDate::from_ymd(2018, 8, 13),
+        NaiveDate::from_ymd_opt(2018, 8, 13).expect("Invalid date."),
         [0b0001_0011, 0b0000_1000, 0b0001_1000]
     );
 
@@ -95,7 +95,7 @@ mod date {
         set,
         set_date,
         WEEKDAY,
-        &NaiveDate::from_ymd(2018, 8, 13),
+        &NaiveDate::from_ymd_opt(2018, 8, 13).expect("Invalid date."),
         [0b0000_0010, 0b0001_0011, 0b0000_1000, 0b0001_1000]
     );
 }
@@ -106,7 +106,7 @@ mod time {
         get,
         time,
         SECONDS,
-        NaiveTime::from_hms(23, 59, 58),
+        NaiveTime::from_hms_opt(23, 59, 58).expect("Invalid time."),
         [0b0101_1000, 0b0101_1001, 0b0010_0011]
     );
 
@@ -114,7 +114,7 @@ mod time {
         set,
         set_time,
         SECONDS,
-        &NaiveTime::from_hms(23, 59, 58),
+        &NaiveTime::from_hms_opt(23, 59, 58).expect("Invalid time."),
         [0b0101_1000, 0b0101_1001, 0b0010_0011]
     );
 }
@@ -125,7 +125,10 @@ mod datetime {
         get,
         datetime,
         SECONDS,
-        NaiveDate::from_ymd(2018, 8, 13).and_hms(23, 59, 58),
+        NaiveDate::from_ymd_opt(2018, 8, 13)
+            .expect("Invalid date.")
+            .and_hms_opt(23, 59, 58)
+            .expect("Invalid time."),
         [
             0b0101_1000,
             0b0101_1001,
@@ -141,7 +144,10 @@ mod datetime {
         set,
         set_datetime,
         SECONDS,
-        &NaiveDate::from_ymd(2018, 8, 13).and_hms(23, 59, 58),
+        &NaiveDate::from_ymd_opt(2018, 8, 13)
+            .expect("Invalid date.")
+            .and_hms_opt(23, 59, 58)
+            .expect("Invalid time."),
         [
             0b0101_1000,
             0b0101_1001,
@@ -156,12 +162,18 @@ mod datetime {
     set_invalid_param_test!(
         too_small_year,
         set_datetime,
-        &NaiveDate::from_ymd(1999, 1, 1).and_hms(1, 1, 1)
+        &NaiveDate::from_ymd_opt(1999, 1, 1)
+            .expect("Invalid date.")
+            .and_hms_opt(1, 1, 1)
+            .expect("Invalid date.")
     );
     set_invalid_param_test!(
         too_big_year,
         set_datetime,
-        &NaiveDate::from_ymd(2100, 1, 1).and_hms(1, 1, 1)
+        &NaiveDate::from_ymd_opt(2100, 1, 1)
+            .expect("Invalid date.")
+            .and_hms_opt(1, 1, 1)
+            .expect("Invalid date.")
     );
 }
 

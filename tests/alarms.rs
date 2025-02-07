@@ -1,4 +1,4 @@
-use embedded_hal_mock::i2c::Transaction as I2cTrans;
+use embedded_hal_mock::eh1::i2c::Transaction as I2cTrans;
 mod common;
 use crate::common::{
     destroy_mcp79400, destroy_mcp79401, destroy_mcp79402, destroy_mcp7940m, destroy_mcp7940n,
@@ -42,7 +42,7 @@ macro_rules! call_set_alarm_test {
     $(, $value:expr)*) => {
         #[test]
         fn $name() {
-            let dt = NaiveDate::from_ymd(2019, 11, 13).and_hms(23,59, 58);
+            let dt = NaiveDate::from_ymd_opt(2019, 11, 13).expect("Invalid date.").and_hms_opt(23,59, 58).expect("Invalid time.");
             let trans = $transactions;
             let mut dev = $create_method(&trans);
             dev.set_datetime(&dt).unwrap();
