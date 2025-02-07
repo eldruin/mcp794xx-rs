@@ -23,7 +23,7 @@ rust-version = "1.75.0"
 
 [dependencies]
 embedded-hal = "1"
-rtcc = "0.3"
+rtcc = "0.3.2"
 
 [dev-dependencies]
 linux-embedded-hal = "0.4"
